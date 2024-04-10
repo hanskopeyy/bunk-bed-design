@@ -1,8 +1,8 @@
-import * as THREE from './three/build/three.module.js';
-import { OrbitControls } from './three/examples/jsm/controls/OrbitControls.js';
-import { FontLoader } from './three/examples/jsm/loaders/FontLoader.js';
-import { TextGeometry } from './three/examples/jsm/geometries/TextGeometry.js';
-import { GLTFLoader } from './three/examples/jsm/loaders/GLTFLoader.js'; 
+import * as THREE from './three.js/build/three.module.js';
+import { OrbitControls } from './three.js/examples/jsm/controls/OrbitControls.js';
+import { FontLoader } from './three.js/examples/jsm/loaders/FontLoader.js';
+import { TextGeometry } from './three.js/examples/jsm/geometries/TextGeometry.js';
+import { GLTFLoader } from './three.js/examples/jsm/loaders/GLTFLoader.js'; 
 
 // --------------------- Variables ------------------
 let SCENE
