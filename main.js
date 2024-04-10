@@ -1,14 +1,12 @@
 import * as THREE from './three.js/build/three.module.js';
 import { OrbitControls } from './three.js/examples/jsm/controls/OrbitControls.js';
-import { FontLoader } from './three.js/examples/jsm/loaders/FontLoader.js';
-import { TextGeometry } from './three.js/examples/jsm/geometries/TextGeometry.js';
 import { GLTFLoader } from './three.js/examples/jsm/loaders/GLTFLoader.js'; 
 
 // --------------------- Variables ------------------
 let SCENE
 let PERSPECTIVE_CAMERA
 let PERSPECTIVE_CAMERA_CONTROL
-let FONT_LOADER = new FontLoader();
+let FONT_LOADER = new THREE.FontLoader();
 let MODEL_LOADER = new GLTFLoader();
 let RENDERER
 let OBJECT_GROUP = [];
@@ -67,7 +65,7 @@ let createLine = (properties, color = 0xFFFFFF, isLine = true) => {
 
 let createText = (scene, text, properties, color = 0xFFFFFF) => {
     FONT_LOADER.load('./node_modules/three/examples/fonts/helvetiker_regular.typeface.json', (typefont) => {
-        let geometry = new TextGeometry(text, {
+        let geometry = new THREE.TextGeometry(text, {
             font: typefont,
             depth: properties.height,
             size: properties.size
