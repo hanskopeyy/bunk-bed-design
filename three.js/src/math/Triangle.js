@@ -1,28 +1,41 @@
 import { Vector3 } from './Vector3.js';
+import { Plane } from './Plane.js';
 
-const _v0 = /*@__PURE__*/ new Vector3();
-const _v1 = /*@__PURE__*/ new Vector3();
-const _v2 = /*@__PURE__*/ new Vector3();
-const _v3 = /*@__PURE__*/ new Vector3();
+/**
+ * @author bhouston / http://clara.io
+ * @author mrdoob / http://mrdoob.com/
+ */
 
-const _vab = /*@__PURE__*/ new Vector3();
-const _vac = /*@__PURE__*/ new Vector3();
-const _vbc = /*@__PURE__*/ new Vector3();
-const _vap = /*@__PURE__*/ new Vector3();
-const _vbp = /*@__PURE__*/ new Vector3();
-const _vcp = /*@__PURE__*/ new Vector3();
+const _v0 = new Vector3();
+const _v1 = new Vector3();
+const _v2 = new Vector3();
+const _v3 = new Vector3();
 
-class Triangle {
+const _vab = new Vector3();
+const _vac = new Vector3();
+const _vbc = new Vector3();
+const _vap = new Vector3();
+const _vbp = new Vector3();
+const _vcp = new Vector3();
 
-	constructor( a = new Vector3(), b = new Vector3(), c = new Vector3() ) {
+function Triangle( a, b, c ) {
 
-		this.a = a;
-		this.b = b;
-		this.c = c;
+	this.a = ( a !== undefined ) ? a : new Vector3();
+	this.b = ( b !== undefined ) ? b : new Vector3();
+	this.c = ( c !== undefined ) ? c : new Vector3();
 
-	}
+}
 
-	static getNormal( a, b, c, target ) {
+Object.assign( Triangle, {
+
+	getNormal: function ( a, b, c, target ) {
+
+		if ( target === undefined ) {
+
+			console.warn( 'THREE.Triangle: .getNormal() target is now required' );
+			target = new Vector3();
+
+		}
 
 		target.subVectors( c, b );
 		_v0.subVectors( a, b );
@@ -37,11 +50,11 @@ class Triangle {
 
 		return target.set( 0, 0, 0 );
 
-	}
+	},
 
 	// static/instance method to calculate barycentric coordinates
 	// based on: http://www.blackpawn.com/texts/pointinpoly/default.html
-	static getBarycoord( point, a, b, c, target ) {
+	getBarycoord: function ( point, a, b, c, target ) {
 
 		_v0.subVectors( c, a );
 		_v1.subVectors( b, a );
@@ -55,11 +68,19 @@ class Triangle {
 
 		const denom = ( dot00 * dot11 - dot01 * dot01 );
 
+		if ( target === undefined ) {
+
+			console.warn( 'THREE.Triangle: .getBarycoord() target is now required' );
+			target = new Vector3();
+
+		}
+
 		// collinear or singular triangle
 		if ( denom === 0 ) {
 
-			target.set( 0, 0, 0 );
-			return null;
+			// arbitrary location outside of triangle?
+			// not sure if this is the best idea, maybe should be returning undefined
+			return target.set( - 2, - 1, - 1 );
 
 		}
 
@@ -70,43 +91,30 @@ class Triangle {
 		// barycentric coordinates must always sum to 1
 		return target.set( 1 - u - v, v, u );
 
-	}
+	},
 
-	static containsPoint( point, a, b, c ) {
+	containsPoint: function ( point, a, b, c ) {
 
-		// if the triangle is degenerate then we can't contain a point
-		if ( this.getBarycoord( point, a, b, c, _v3 ) === null ) {
-
-			return false;
-
-		}
+		Triangle.getBarycoord( point, a, b, c, _v3 );
 
 		return ( _v3.x >= 0 ) && ( _v3.y >= 0 ) && ( ( _v3.x + _v3.y ) <= 1 );
 
-	}
+	},
 
-	static getInterpolation( point, p1, p2, p3, v1, v2, v3, target ) {
+	getUV: function ( point, p1, p2, p3, uv1, uv2, uv3, target ) {
 
-		if ( this.getBarycoord( point, p1, p2, p3, _v3 ) === null ) {
+		this.getBarycoord( point, p1, p2, p3, _v3 );
 
-			target.x = 0;
-			target.y = 0;
-			if ( 'z' in target ) target.z = 0;
-			if ( 'w' in target ) target.w = 0;
-			return null;
-
-		}
-
-		target.setScalar( 0 );
-		target.addScaledVector( v1, _v3.x );
-		target.addScaledVector( v2, _v3.y );
-		target.addScaledVector( v3, _v3.z );
+		target.set( 0, 0 );
+		target.addScaledVector( uv1, _v3.x );
+		target.addScaledVector( uv2, _v3.y );
+		target.addScaledVector( uv3, _v3.z );
 
 		return target;
 
-	}
+	},
 
-	static isFrontFacing( a, b, c, direction ) {
+	isFrontFacing: function ( a, b, c, direction ) {
 
 		_v0.subVectors( c, b );
 		_v1.subVectors( a, b );
@@ -116,7 +124,11 @@ class Triangle {
 
 	}
 
-	set( a, b, c ) {
+} );
+
+Object.assign( Triangle.prototype, {
+
+	set: function ( a, b, c ) {
 
 		this.a.copy( a );
 		this.b.copy( b );
@@ -124,9 +136,9 @@ class Triangle {
 
 		return this;
 
-	}
+	},
 
-	setFromPointsAndIndices( points, i0, i1, i2 ) {
+	setFromPointsAndIndices: function ( points, i0, i1, i2 ) {
 
 		this.a.copy( points[ i0 ] );
 		this.b.copy( points[ i1 ] );
@@ -134,25 +146,15 @@ class Triangle {
 
 		return this;
 
-	}
+	},
 
-	setFromAttributeAndIndices( attribute, i0, i1, i2 ) {
-
-		this.a.fromBufferAttribute( attribute, i0 );
-		this.b.fromBufferAttribute( attribute, i1 );
-		this.c.fromBufferAttribute( attribute, i2 );
-
-		return this;
-
-	}
-
-	clone() {
+	clone: function () {
 
 		return new this.constructor().copy( this );
 
-	}
+	},
 
-	copy( triangle ) {
+	copy: function ( triangle ) {
 
 		this.a.copy( triangle.a );
 		this.b.copy( triangle.b );
@@ -160,66 +162,87 @@ class Triangle {
 
 		return this;
 
-	}
+	},
 
-	getArea() {
+	getArea: function () {
 
 		_v0.subVectors( this.c, this.b );
 		_v1.subVectors( this.a, this.b );
 
 		return _v0.cross( _v1 ).length() * 0.5;
 
-	}
+	},
 
-	getMidpoint( target ) {
+	getMidpoint: function ( target ) {
+
+		if ( target === undefined ) {
+
+			console.warn( 'THREE.Triangle: .getMidpoint() target is now required' );
+			target = new Vector3();
+
+		}
 
 		return target.addVectors( this.a, this.b ).add( this.c ).multiplyScalar( 1 / 3 );
 
-	}
+	},
 
-	getNormal( target ) {
+	getNormal: function ( target ) {
 
 		return Triangle.getNormal( this.a, this.b, this.c, target );
 
-	}
+	},
 
-	getPlane( target ) {
+	getPlane: function ( target ) {
+
+		if ( target === undefined ) {
+
+			console.warn( 'THREE.Triangle: .getPlane() target is now required' );
+			target = new Plane();
+
+		}
 
 		return target.setFromCoplanarPoints( this.a, this.b, this.c );
 
-	}
+	},
 
-	getBarycoord( point, target ) {
+	getBarycoord: function ( point, target ) {
 
 		return Triangle.getBarycoord( point, this.a, this.b, this.c, target );
 
-	}
+	},
 
-	getInterpolation( point, v1, v2, v3, target ) {
+	getUV: function ( point, uv1, uv2, uv3, target ) {
 
-		return Triangle.getInterpolation( point, this.a, this.b, this.c, v1, v2, v3, target );
+		return Triangle.getUV( point, this.a, this.b, this.c, uv1, uv2, uv3, target );
 
-	}
+	},
 
-	containsPoint( point ) {
+	containsPoint: function ( point ) {
 
 		return Triangle.containsPoint( point, this.a, this.b, this.c );
 
-	}
+	},
 
-	isFrontFacing( direction ) {
+	isFrontFacing: function ( direction ) {
 
 		return Triangle.isFrontFacing( this.a, this.b, this.c, direction );
 
-	}
+	},
 
-	intersectsBox( box ) {
+	intersectsBox: function ( box ) {
 
 		return box.intersectsTriangle( this );
 
-	}
+	},
 
-	closestPointToPoint( p, target ) {
+	closestPointToPoint: function ( p, target ) {
+
+		if ( target === undefined ) {
+
+			console.warn( 'THREE.Triangle: .closestPointToPoint() target is now required' );
+			target = new Vector3();
+
+		}
 
 		const a = this.a, b = this.b, c = this.c;
 		let v, w;
@@ -298,14 +321,15 @@ class Triangle {
 
 		return target.copy( a ).addScaledVector( _vab, v ).addScaledVector( _vac, w );
 
-	}
+	},
 
-	equals( triangle ) {
+	equals: function ( triangle ) {
 
 		return triangle.a.equals( this.a ) && triangle.b.equals( this.b ) && triangle.c.equals( this.c );
 
 	}
 
-}
+} );
+
 
 export { Triangle };

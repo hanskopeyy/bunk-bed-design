@@ -1,24 +1,28 @@
 import { LightShadow } from './LightShadow.js';
-import * as MathUtils from '../math/MathUtils.js';
+import { MathUtils } from '../math/MathUtils.js';
 import { PerspectiveCamera } from '../cameras/PerspectiveCamera.js';
 
-class SpotLightShadow extends LightShadow {
+/**
+ * @author mrdoob / http://mrdoob.com/
+ */
 
-	constructor() {
+function SpotLightShadow() {
 
-		super( new PerspectiveCamera( 50, 1, 0.5, 500 ) );
+	LightShadow.call( this, new PerspectiveCamera( 50, 1, 0.5, 500 ) );
 
-		this.isSpotLightShadow = true;
+}
 
-		this.focus = 1;
+SpotLightShadow.prototype = Object.assign( Object.create( LightShadow.prototype ), {
 
-	}
+	constructor: SpotLightShadow,
 
-	updateMatrices( light ) {
+	isSpotLightShadow: true,
+
+	updateMatrices: function ( light ) {
 
 		const camera = this.camera;
 
-		const fov = MathUtils.RAD2DEG * 2 * light.angle * this.focus;
+		const fov = MathUtils.RAD2DEG * 2 * light.angle;
 		const aspect = this.mapSize.width / this.mapSize.height;
 		const far = light.distance || camera.far;
 
@@ -31,20 +35,11 @@ class SpotLightShadow extends LightShadow {
 
 		}
 
-		super.updateMatrices( light );
+		LightShadow.prototype.updateMatrices.call( this, light );
 
 	}
 
-	copy( source ) {
+} );
 
-		super.copy( source );
-
-		this.focus = source.focus;
-
-		return this;
-
-	}
-
-}
 
 export { SpotLightShadow };

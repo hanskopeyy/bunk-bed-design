@@ -1,3 +1,7 @@
+/**
+ * @author mrdoob / http://mrdoob.com/
+ */
+
 function WebGLCapabilities( gl, extensions, parameters ) {
 
 	let maxAnisotropy;
@@ -6,9 +10,9 @@ function WebGLCapabilities( gl, extensions, parameters ) {
 
 		if ( maxAnisotropy !== undefined ) return maxAnisotropy;
 
-		if ( extensions.has( 'EXT_texture_filter_anisotropic' ) === true ) {
+		const extension = extensions.get( 'EXT_texture_filter_anisotropic' );
 
-			const extension = extensions.get( 'EXT_texture_filter_anisotropic' );
+		if ( extension !== null ) {
 
 			maxAnisotropy = gl.getParameter( extension.MAX_TEXTURE_MAX_ANISOTROPY_EXT );
 
@@ -52,6 +56,11 @@ function WebGLCapabilities( gl, extensions, parameters ) {
 
 	}
 
+	/* eslint-disable no-undef */
+	const isWebGL2 = ( typeof WebGL2RenderingContext !== 'undefined' && gl instanceof WebGL2RenderingContext ) ||
+		( typeof WebGL2ComputeRenderingContext !== 'undefined' && gl instanceof WebGL2ComputeRenderingContext );
+	/* eslint-enable no-undef */
+
 	let precision = parameters.precision !== undefined ? parameters.precision : 'highp';
 	const maxPrecision = getMaxPrecision( precision );
 
@@ -75,12 +84,14 @@ function WebGLCapabilities( gl, extensions, parameters ) {
 	const maxFragmentUniforms = gl.getParameter( gl.MAX_FRAGMENT_UNIFORM_VECTORS );
 
 	const vertexTextures = maxVertexTextures > 0;
+	const floatFragmentTextures = isWebGL2 || !! extensions.get( 'OES_texture_float' );
+	const floatVertexTextures = vertexTextures && floatFragmentTextures;
 
-	const maxSamples = gl.getParameter( gl.MAX_SAMPLES );
+	const maxSamples = isWebGL2 ? gl.getParameter( gl.MAX_SAMPLES ) : 0;
 
 	return {
 
-		isWebGL2: true, // keeping this for backwards compatibility
+		isWebGL2: isWebGL2,
 
 		getMaxAnisotropy: getMaxAnisotropy,
 		getMaxPrecision: getMaxPrecision,
@@ -99,6 +110,8 @@ function WebGLCapabilities( gl, extensions, parameters ) {
 		maxFragmentUniforms: maxFragmentUniforms,
 
 		vertexTextures: vertexTextures,
+		floatFragmentTextures: floatFragmentTextures,
+		floatVertexTextures: floatVertexTextures,
 
 		maxSamples: maxSamples
 

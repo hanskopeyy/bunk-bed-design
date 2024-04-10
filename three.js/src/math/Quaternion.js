@@ -1,19 +1,30 @@
-import * as MathUtils from './MathUtils.js';
+/**
+ * @author mikael emtinger / http://gomo.se/
+ * @author alteredq / http://alteredqualia.com/
+ * @author WestLangley / http://github.com/WestLangley
+ * @author bhouston / http://clara.io
+ */
 
-class Quaternion {
+import { MathUtils } from './MathUtils.js';
 
-	constructor( x = 0, y = 0, z = 0, w = 1 ) {
+function Quaternion( x = 0, y = 0, z = 0, w = 1 ) {
 
-		this.isQuaternion = true;
+	this._x = x;
+	this._y = y;
+	this._z = z;
+	this._w = w;
 
-		this._x = x;
-		this._y = y;
-		this._z = z;
-		this._w = w;
+}
 
-	}
+Object.assign( Quaternion, {
 
-	static slerpFlat( dst, dstOffset, src0, srcOffset0, src1, srcOffset1, t ) {
+	slerp: function ( qa, qb, qm, t ) {
+
+		return qm.copy( qa ).slerp( qb, t );
+
+	},
+
+	slerpFlat: function ( dst, dstOffset, src0, srcOffset0, src1, srcOffset1, t ) {
 
 		// fuzz-free, array-based Quaternion SLERP operation
 
@@ -27,30 +38,12 @@ class Quaternion {
 			z1 = src1[ srcOffset1 + 2 ],
 			w1 = src1[ srcOffset1 + 3 ];
 
-		if ( t === 0 ) {
-
-			dst[ dstOffset + 0 ] = x0;
-			dst[ dstOffset + 1 ] = y0;
-			dst[ dstOffset + 2 ] = z0;
-			dst[ dstOffset + 3 ] = w0;
-			return;
-
-		}
-
-		if ( t === 1 ) {
-
-			dst[ dstOffset + 0 ] = x1;
-			dst[ dstOffset + 1 ] = y1;
-			dst[ dstOffset + 2 ] = z1;
-			dst[ dstOffset + 3 ] = w1;
-			return;
-
-		}
-
 		if ( w0 !== w1 || x0 !== x1 || y0 !== y1 || z0 !== z1 ) {
 
-			let s = 1 - t;
-			const cos = x0 * x1 + y0 * y1 + z0 * z1 + w0 * w1,
+			let s = 1 - t,
+
+				cos = x0 * x1 + y0 * y1 + z0 * z1 + w0 * w1,
+
 				dir = ( cos >= 0 ? 1 : - 1 ),
 				sqrSin = 1 - cos * cos;
 
@@ -91,9 +84,9 @@ class Quaternion {
 		dst[ dstOffset + 2 ] = z0;
 		dst[ dstOffset + 3 ] = w0;
 
-	}
+	},
 
-	static multiplyQuaternionsFlat( dst, dstOffset, src0, srcOffset0, src1, srcOffset1 ) {
+	multiplyQuaternionsFlat: function ( dst, dstOffset, src0, srcOffset0, src1, srcOffset1 ) {
 
 		const x0 = src0[ srcOffset0 ];
 		const y0 = src0[ srcOffset0 + 1 ];
@@ -114,59 +107,85 @@ class Quaternion {
 
 	}
 
-	get x() {
+} );
 
-		return this._x;
+Object.defineProperties( Quaternion.prototype, {
+
+	x: {
+
+		get: function () {
+
+			return this._x;
+
+		},
+
+		set: function ( value ) {
+
+			this._x = value;
+			this._onChangeCallback();
+
+		}
+
+	},
+
+	y: {
+
+		get: function () {
+
+			return this._y;
+
+		},
+
+		set: function ( value ) {
+
+			this._y = value;
+			this._onChangeCallback();
+
+		}
+
+	},
+
+	z: {
+
+		get: function () {
+
+			return this._z;
+
+		},
+
+		set: function ( value ) {
+
+			this._z = value;
+			this._onChangeCallback();
+
+		}
+
+	},
+
+	w: {
+
+		get: function () {
+
+			return this._w;
+
+		},
+
+		set: function ( value ) {
+
+			this._w = value;
+			this._onChangeCallback();
+
+		}
 
 	}
 
-	set x( value ) {
+} );
 
-		this._x = value;
-		this._onChangeCallback();
+Object.assign( Quaternion.prototype, {
 
-	}
+	isQuaternion: true,
 
-	get y() {
-
-		return this._y;
-
-	}
-
-	set y( value ) {
-
-		this._y = value;
-		this._onChangeCallback();
-
-	}
-
-	get z() {
-
-		return this._z;
-
-	}
-
-	set z( value ) {
-
-		this._z = value;
-		this._onChangeCallback();
-
-	}
-
-	get w() {
-
-		return this._w;
-
-	}
-
-	set w( value ) {
-
-		this._w = value;
-		this._onChangeCallback();
-
-	}
-
-	set( x, y, z, w ) {
+	set: function ( x, y, z, w ) {
 
 		this._x = x;
 		this._y = y;
@@ -177,15 +196,15 @@ class Quaternion {
 
 		return this;
 
-	}
+	},
 
-	clone() {
+	clone: function () {
 
 		return new this.constructor( this._x, this._y, this._z, this._w );
 
-	}
+	},
 
-	copy( quaternion ) {
+	copy: function ( quaternion ) {
 
 		this._x = quaternion.x;
 		this._y = quaternion.y;
@@ -196,11 +215,17 @@ class Quaternion {
 
 		return this;
 
-	}
+	},
 
-	setFromEuler( euler, update = true ) {
+	setFromEuler: function ( euler, update ) {
 
-		const x = euler._x, y = euler._y, z = euler._z, order = euler._order;
+		if ( ! ( euler && euler.isEuler ) ) {
+
+			throw new Error( 'THREE.Quaternion: .setFromEuler() now expects an Euler rotation rather than a Vector3 and order.' );
+
+		}
+
+		const x = euler._x, y = euler._y, z = euler._z, order = euler.order;
 
 		// http://www.mathworks.com/matlabcentral/fileexchange/
 		// 	20696-function-to-convert-between-dcm-euler-angles-quaternions-and-euler-vectors/
@@ -266,13 +291,13 @@ class Quaternion {
 
 		}
 
-		if ( update === true ) this._onChangeCallback();
+		if ( update !== false ) this._onChangeCallback();
 
 		return this;
 
-	}
+	},
 
-	setFromAxisAngle( axis, angle ) {
+	setFromAxisAngle: function ( axis, angle ) {
 
 		// http://www.euclideanspace.com/maths/geometry/rotations/conversions/angleToQuaternion/index.htm
 
@@ -289,9 +314,9 @@ class Quaternion {
 
 		return this;
 
-	}
+	},
 
-	setFromRotationMatrix( m ) {
+	setFromRotationMatrix: function ( m ) {
 
 		// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
 
@@ -347,17 +372,17 @@ class Quaternion {
 
 		return this;
 
-	}
+	},
 
-	setFromUnitVectors( vFrom, vTo ) {
+	setFromUnitVectors: function ( vFrom, vTo ) {
 
 		// assumes direction vectors vFrom and vTo are normalized
 
+		const EPS = 0.000001;
+
 		let r = vFrom.dot( vTo ) + 1;
 
-		if ( r < Number.EPSILON ) {
-
-			// vFrom and vTo point in opposite directions
+		if ( r < EPS ) {
 
 			r = 0;
 
@@ -390,15 +415,15 @@ class Quaternion {
 
 		return this.normalize();
 
-	}
+	},
 
-	angleTo( q ) {
+	angleTo: function ( q ) {
 
 		return 2 * Math.acos( Math.abs( MathUtils.clamp( this.dot( q ), - 1, 1 ) ) );
 
-	}
+	},
 
-	rotateTowards( q, step ) {
+	rotateTowards: function ( q, step ) {
 
 		const angle = this.angleTo( q );
 
@@ -410,23 +435,17 @@ class Quaternion {
 
 		return this;
 
-	}
+	},
 
-	identity() {
-
-		return this.set( 0, 0, 0, 1 );
-
-	}
-
-	invert() {
+	inverse: function () {
 
 		// quaternion is assumed to have unit length
 
 		return this.conjugate();
 
-	}
+	},
 
-	conjugate() {
+	conjugate: function () {
 
 		this._x *= - 1;
 		this._y *= - 1;
@@ -436,27 +455,27 @@ class Quaternion {
 
 		return this;
 
-	}
+	},
 
-	dot( v ) {
+	dot: function ( v ) {
 
 		return this._x * v._x + this._y * v._y + this._z * v._z + this._w * v._w;
 
-	}
+	},
 
-	lengthSq() {
+	lengthSq: function () {
 
 		return this._x * this._x + this._y * this._y + this._z * this._z + this._w * this._w;
 
-	}
+	},
 
-	length() {
+	length: function () {
 
 		return Math.sqrt( this._x * this._x + this._y * this._y + this._z * this._z + this._w * this._w );
 
-	}
+	},
 
-	normalize() {
+	normalize: function () {
 
 		let l = this.length();
 
@@ -482,21 +501,28 @@ class Quaternion {
 
 		return this;
 
-	}
+	},
 
-	multiply( q ) {
+	multiply: function ( q, p ) {
+
+		if ( p !== undefined ) {
+
+			console.warn( 'THREE.Quaternion: .multiply() now only accepts one argument. Use .multiplyQuaternions( a, b ) instead.' );
+			return this.multiplyQuaternions( q, p );
+
+		}
 
 		return this.multiplyQuaternions( this, q );
 
-	}
+	},
 
-	premultiply( q ) {
+	premultiply: function ( q ) {
 
 		return this.multiplyQuaternions( q, this );
 
-	}
+	},
 
-	multiplyQuaternions( a, b ) {
+	multiplyQuaternions: function ( a, b ) {
 
 		// from http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/code/index.htm
 
@@ -512,9 +538,9 @@ class Quaternion {
 
 		return this;
 
-	}
+	},
 
-	slerp( qb, t ) {
+	slerp: function ( qb, t ) {
 
 		if ( t === 0 ) return this;
 		if ( t === 1 ) return this.copy( qb );
@@ -561,7 +587,8 @@ class Quaternion {
 			this._y = s * y + t * this._y;
 			this._z = s * z + t * this._z;
 
-			this.normalize(); // normalize calls _onChangeCallback()
+			this.normalize();
+			this._onChangeCallback();
 
 			return this;
 
@@ -581,45 +608,17 @@ class Quaternion {
 
 		return this;
 
-	}
+	},
 
-	slerpQuaternions( qa, qb, t ) {
-
-		return this.copy( qa ).slerp( qb, t );
-
-	}
-
-	random() {
-
-		// sets this quaternion to a uniform random unit quaternnion
-
-		// Ken Shoemake
-		// Uniform random rotations
-		// D. Kirk, editor, Graphics Gems III, pages 124-132. Academic Press, New York, 1992.
-
-		const theta1 = 2 * Math.PI * Math.random();
-		const theta2 = 2 * Math.PI * Math.random();
-
-		const x0 = Math.random();
-		const r1 = Math.sqrt( 1 - x0 );
-		const r2 = Math.sqrt( x0 );
-
-		return this.set(
-			r1 * Math.sin( theta1 ),
-			r1 * Math.cos( theta1 ),
-			r2 * Math.sin( theta2 ),
-			r2 * Math.cos( theta2 ),
-		);
-
-	}
-
-	equals( quaternion ) {
+	equals: function ( quaternion ) {
 
 		return ( quaternion._x === this._x ) && ( quaternion._y === this._y ) && ( quaternion._z === this._z ) && ( quaternion._w === this._w );
 
-	}
+	},
 
-	fromArray( array, offset = 0 ) {
+	fromArray: function ( array, offset ) {
+
+		if ( offset === undefined ) offset = 0;
 
 		this._x = array[ offset ];
 		this._y = array[ offset + 1 ];
@@ -630,9 +629,12 @@ class Quaternion {
 
 		return this;
 
-	}
+	},
 
-	toArray( array = [], offset = 0 ) {
+	toArray: function ( array, offset ) {
+
+		if ( array === undefined ) array = [];
+		if ( offset === undefined ) offset = 0;
 
 		array[ offset ] = this._x;
 		array[ offset + 1 ] = this._y;
@@ -641,46 +643,30 @@ class Quaternion {
 
 		return array;
 
-	}
+	},
 
-	fromBufferAttribute( attribute, index ) {
+	fromBufferAttribute: function ( attribute, index ) {
 
 		this._x = attribute.getX( index );
 		this._y = attribute.getY( index );
 		this._z = attribute.getZ( index );
 		this._w = attribute.getW( index );
 
-		this._onChangeCallback();
-
 		return this;
 
-	}
+	},
 
-	toJSON() {
-
-		return this.toArray();
-
-	}
-
-	_onChange( callback ) {
+	_onChange: function ( callback ) {
 
 		this._onChangeCallback = callback;
 
 		return this;
 
-	}
+	},
 
-	_onChangeCallback() {}
+	_onChangeCallback: function () {}
 
-	*[ Symbol.iterator ]() {
+} );
 
-		yield this._x;
-		yield this._y;
-		yield this._z;
-		yield this._w;
-
-	}
-
-}
 
 export { Quaternion };

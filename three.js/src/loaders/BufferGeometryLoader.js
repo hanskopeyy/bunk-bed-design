@@ -8,24 +8,27 @@ import { InstancedBufferGeometry } from '../core/InstancedBufferGeometry.js';
 import { InstancedBufferAttribute } from '../core/InstancedBufferAttribute.js';
 import { InterleavedBufferAttribute } from '../core/InterleavedBufferAttribute.js';
 import { InterleavedBuffer } from '../core/InterleavedBuffer.js';
-import { getTypedArray } from '../utils.js';
 
-class BufferGeometryLoader extends Loader {
+/**
+ * @author mrdoob / http://mrdoob.com/
+ */
 
-	constructor( manager ) {
+function BufferGeometryLoader( manager ) {
 
-		super( manager );
+	Loader.call( this, manager );
 
-	}
+}
 
-	load( url, onLoad, onProgress, onError ) {
+BufferGeometryLoader.prototype = Object.assign( Object.create( Loader.prototype ), {
+
+	constructor: BufferGeometryLoader,
+
+	load: function ( url, onLoad, onProgress, onError ) {
 
 		const scope = this;
 
 		const loader = new FileLoader( scope.manager );
 		loader.setPath( scope.path );
-		loader.setRequestHeader( scope.requestHeader );
-		loader.setWithCredentials( scope.withCredentials );
 		loader.load( url, function ( text ) {
 
 			try {
@@ -50,9 +53,9 @@ class BufferGeometryLoader extends Loader {
 
 		}, onProgress, onError );
 
-	}
+	},
 
-	parse( json ) {
+	parse: function ( json ) {
 
 		const interleavedBufferMap = {};
 		const arrayBufferMap = {};
@@ -66,7 +69,7 @@ class BufferGeometryLoader extends Loader {
 
 			const buffer = getArrayBuffer( json, interleavedBuffer.buffer );
 
-			const array = getTypedArray( interleavedBuffer.type, buffer );
+			const array = new TYPED_ARRAYS[ interleavedBuffer.type ]( buffer );
 			const ib = new InterleavedBuffer( array, interleavedBuffer.stride );
 			ib.uuid = interleavedBuffer.uuid;
 
@@ -97,7 +100,7 @@ class BufferGeometryLoader extends Loader {
 
 		if ( index !== undefined ) {
 
-			const typedArray = getTypedArray( index.type, index.array );
+			const typedArray = new TYPED_ARRAYS[ index.type ]( index.array );
 			geometry.setIndex( new BufferAttribute( typedArray, 1 ) );
 
 		}
@@ -116,15 +119,13 @@ class BufferGeometryLoader extends Loader {
 
 			} else {
 
-				const typedArray = getTypedArray( attribute.type, attribute.array );
+				const typedArray = new TYPED_ARRAYS[ attribute.type ]( attribute.array );
 				const bufferAttributeConstr = attribute.isInstancedBufferAttribute ? InstancedBufferAttribute : BufferAttribute;
 				bufferAttribute = new bufferAttributeConstr( typedArray, attribute.itemSize, attribute.normalized );
 
 			}
 
 			if ( attribute.name !== undefined ) bufferAttribute.name = attribute.name;
-			if ( attribute.usage !== undefined ) bufferAttribute.setUsage( attribute.usage );
-
 			geometry.setAttribute( key, bufferAttribute );
 
 		}
@@ -151,7 +152,7 @@ class BufferGeometryLoader extends Loader {
 
 					} else {
 
-						const typedArray = getTypedArray( attribute.type, attribute.array );
+						const typedArray = new TYPED_ARRAYS[ attribute.type ]( attribute.array );
 						bufferAttribute = new BufferAttribute( typedArray, attribute.itemSize, attribute.normalized );
 
 					}
@@ -212,6 +213,19 @@ class BufferGeometryLoader extends Loader {
 
 	}
 
-}
+} );
+
+const TYPED_ARRAYS = {
+	Int8Array: Int8Array,
+	Uint8Array: Uint8Array,
+	// Workaround for IE11 pre KB2929437. See #11440
+	Uint8ClampedArray: typeof Uint8ClampedArray !== 'undefined' ? Uint8ClampedArray : Uint8Array,
+	Int16Array: Int16Array,
+	Uint16Array: Uint16Array,
+	Int32Array: Int32Array,
+	Uint32Array: Uint32Array,
+	Float32Array: Float32Array,
+	Float64Array: Float64Array
+};
 
 export { BufferGeometryLoader };

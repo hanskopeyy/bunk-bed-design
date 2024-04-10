@@ -1,22 +1,25 @@
 import { DefaultLoadingManager } from './LoadingManager.js';
 
-class Loader {
+/**
+ * @author alteredq / http://alteredqualia.com/
+ */
 
-	constructor( manager ) {
+function Loader( manager ) {
 
-		this.manager = ( manager !== undefined ) ? manager : DefaultLoadingManager;
+	this.manager = ( manager !== undefined ) ? manager : DefaultLoadingManager;
 
-		this.crossOrigin = 'anonymous';
-		this.withCredentials = false;
-		this.path = '';
-		this.resourcePath = '';
-		this.requestHeader = {};
+	this.crossOrigin = 'anonymous';
+	this.path = '';
+	this.resourcePath = '';
+	this.requestHeader = {};
 
-	}
+}
 
-	load( /* url, onLoad, onProgress, onError */ ) {}
+Object.assign( Loader.prototype, {
 
-	loadAsync( url, onProgress ) {
+	load: function ( /* url, onLoad, onProgress, onError */ ) {},
+
+	loadAsync: function ( url, onProgress ) {
 
 		const scope = this;
 
@@ -26,47 +29,38 @@ class Loader {
 
 		} );
 
-	}
+	},
 
-	parse( /* data */ ) {}
+	parse: function ( /* data */ ) {},
 
-	setCrossOrigin( crossOrigin ) {
+	setCrossOrigin: function ( crossOrigin ) {
 
 		this.crossOrigin = crossOrigin;
 		return this;
 
-	}
+	},
 
-	setWithCredentials( value ) {
-
-		this.withCredentials = value;
-		return this;
-
-	}
-
-	setPath( path ) {
+	setPath: function ( path ) {
 
 		this.path = path;
 		return this;
 
-	}
+	},
 
-	setResourcePath( resourcePath ) {
+	setResourcePath: function ( resourcePath ) {
 
 		this.resourcePath = resourcePath;
 		return this;
 
-	}
+	},
 
-	setRequestHeader( requestHeader ) {
+	setRequestHeader: function ( requestHeader ) {
 
 		this.requestHeader = requestHeader;
 		return this;
 
 	}
 
-}
-
-Loader.DEFAULT_MATERIAL_NAME = '__DEFAULT';
+} );
 
 export { Loader };

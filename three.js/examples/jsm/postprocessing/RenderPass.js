@@ -1,37 +1,40 @@
-import {
-	Color
-} from 'three';
-import { Pass } from './Pass.js';
+/**
+ * @author alteredq / http://alteredqualia.com/
+ */
 
-class RenderPass extends Pass {
 
-	constructor( scene, camera, overrideMaterial = null, clearColor = null, clearAlpha = null ) {
+import { Pass } from "../postprocessing/Pass.js";
 
-		super();
+var RenderPass = function ( scene, camera, overrideMaterial, clearColor, clearAlpha ) {
 
-		this.scene = scene;
-		this.camera = camera;
+	Pass.call( this );
 
-		this.overrideMaterial = overrideMaterial;
+	this.scene = scene;
+	this.camera = camera;
 
-		this.clearColor = clearColor;
-		this.clearAlpha = clearAlpha;
+	this.overrideMaterial = overrideMaterial;
 
-		this.clear = true;
-		this.clearDepth = false;
-		this.needsSwap = false;
-		this._oldClearColor = new Color();
+	this.clearColor = clearColor;
+	this.clearAlpha = ( clearAlpha !== undefined ) ? clearAlpha : 0;
 
-	}
+	this.clear = true;
+	this.clearDepth = false;
+	this.needsSwap = false;
 
-	render( renderer, writeBuffer, readBuffer /*, deltaTime, maskActive */ ) {
+};
 
-		const oldAutoClear = renderer.autoClear;
+RenderPass.prototype = Object.assign( Object.create( Pass.prototype ), {
+
+	constructor: RenderPass,
+
+	render: function ( renderer, writeBuffer, readBuffer /*, deltaTime, maskActive */ ) {
+
+		var oldAutoClear = renderer.autoClear;
 		renderer.autoClear = false;
 
-		let oldClearAlpha, oldOverrideMaterial;
+		var oldClearColor, oldClearAlpha, oldOverrideMaterial;
 
-		if ( this.overrideMaterial !== null ) {
+		if ( this.overrideMaterial !== undefined ) {
 
 			oldOverrideMaterial = this.scene.overrideMaterial;
 
@@ -39,21 +42,16 @@ class RenderPass extends Pass {
 
 		}
 
-		if ( this.clearColor !== null ) {
+		if ( this.clearColor ) {
 
-			renderer.getClearColor( this._oldClearColor );
-			renderer.setClearColor( this.clearColor );
-
-		}
-
-		if ( this.clearAlpha !== null ) {
-
+			oldClearColor = renderer.getClearColor().getHex();
 			oldClearAlpha = renderer.getClearAlpha();
-			renderer.setClearAlpha( this.clearAlpha );
+
+			renderer.setClearColor( this.clearColor, this.clearAlpha );
 
 		}
 
-		if ( this.clearDepth == true ) {
+		if ( this.clearDepth ) {
 
 			renderer.clearDepth();
 
@@ -61,30 +59,17 @@ class RenderPass extends Pass {
 
 		renderer.setRenderTarget( this.renderToScreen ? null : readBuffer );
 
-		if ( this.clear === true ) {
-
-			// TODO: Avoid using autoClear properties, see https://github.com/mrdoob/three.js/pull/15571#issuecomment-465669600
-			renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
-
-		}
-
+		// TODO: Avoid using autoClear properties, see https://github.com/mrdoob/three.js/pull/15571#issuecomment-465669600
+		if ( this.clear ) renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
 		renderer.render( this.scene, this.camera );
 
-		// restore
+		if ( this.clearColor ) {
 
-		if ( this.clearColor !== null ) {
-
-			renderer.setClearColor( this._oldClearColor );
+			renderer.setClearColor( oldClearColor, oldClearAlpha );
 
 		}
 
-		if ( this.clearAlpha !== null ) {
-
-			renderer.setClearAlpha( oldClearAlpha );
-
-		}
-
-		if ( this.overrideMaterial !== null ) {
+		if ( this.overrideMaterial !== undefined ) {
 
 			this.scene.overrideMaterial = oldOverrideMaterial;
 
@@ -94,6 +79,6 @@ class RenderPass extends Pass {
 
 	}
 
-}
+} );
 
 export { RenderPass };

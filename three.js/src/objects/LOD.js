@@ -1,36 +1,43 @@
 import { Vector3 } from '../math/Vector3.js';
 import { Object3D } from '../core/Object3D.js';
 
-const _v1 = /*@__PURE__*/ new Vector3();
-const _v2 = /*@__PURE__*/ new Vector3();
+/**
+ * @author mikael emtinger / http://gomo.se/
+ * @author alteredq / http://alteredqualia.com/
+ * @author mrdoob / http://mrdoob.com/
+ */
 
-class LOD extends Object3D {
+const _v1 = new Vector3();
+const _v2 = new Vector3();
 
-	constructor() {
+function LOD() {
 
-		super();
+	Object3D.call( this );
 
-		this._currentLevel = 0;
+	this._currentLevel = 0;
 
-		this.type = 'LOD';
+	this.type = 'LOD';
 
-		Object.defineProperties( this, {
-			levels: {
-				enumerable: true,
-				value: []
-			},
-			isLOD: {
-				value: true,
-			}
-		} );
+	Object.defineProperties( this, {
+		levels: {
+			enumerable: true,
+			value: []
+		}
+	} );
 
-		this.autoUpdate = true;
+	this.autoUpdate = true;
 
-	}
+}
 
-	copy( source ) {
+LOD.prototype = Object.assign( Object.create( Object3D.prototype ), {
 
-		super.copy( source, false );
+	constructor: LOD,
+
+	isLOD: true,
+
+	copy: function ( source ) {
+
+		Object3D.prototype.copy.call( this, source, false );
 
 		const levels = source.levels;
 
@@ -38,7 +45,7 @@ class LOD extends Object3D {
 
 			const level = levels[ i ];
 
-			this.addLevel( level.object.clone(), level.distance, level.hysteresis );
+			this.addLevel( level.object.clone(), level.distance );
 
 		}
 
@@ -46,9 +53,11 @@ class LOD extends Object3D {
 
 		return this;
 
-	}
+	},
 
-	addLevel( object, distance = 0, hysteresis = 0 ) {
+	addLevel: function ( object, distance ) {
+
+		if ( distance === undefined ) distance = 0;
 
 		distance = Math.abs( distance );
 
@@ -66,23 +75,21 @@ class LOD extends Object3D {
 
 		}
 
-		levels.splice( l, 0, { distance: distance, hysteresis: hysteresis, object: object } );
+		levels.splice( l, 0, { distance: distance, object: object } );
 
 		this.add( object );
 
 		return this;
 
-	}
+	},
 
-	getCurrentLevel() {
+	getCurrentLevel: function () {
 
 		return this._currentLevel;
 
-	}
+	},
 
-
-
-	getObjectForDistance( distance ) {
+	getObjectForDistance: function ( distance ) {
 
 		const levels = this.levels;
 
@@ -92,15 +99,7 @@ class LOD extends Object3D {
 
 			for ( i = 1, l = levels.length; i < l; i ++ ) {
 
-				let levelDistance = levels[ i ].distance;
-
-				if ( levels[ i ].object.visible ) {
-
-					levelDistance -= levelDistance * levels[ i ].hysteresis;
-
-				}
-
-				if ( distance < levelDistance ) {
+				if ( distance < levels[ i ].distance ) {
 
 					break;
 
@@ -114,9 +113,9 @@ class LOD extends Object3D {
 
 		return null;
 
-	}
+	},
 
-	raycast( raycaster, intersects ) {
+	raycast: function ( raycaster, intersects ) {
 
 		const levels = this.levels;
 
@@ -130,9 +129,9 @@ class LOD extends Object3D {
 
 		}
 
-	}
+	},
 
-	update( camera ) {
+	update: function ( camera ) {
 
 		const levels = this.levels;
 
@@ -149,15 +148,7 @@ class LOD extends Object3D {
 
 			for ( i = 1, l = levels.length; i < l; i ++ ) {
 
-				let levelDistance = levels[ i ].distance;
-
-				if ( levels[ i ].object.visible ) {
-
-					levelDistance -= levelDistance * levels[ i ].hysteresis;
-
-				}
-
-				if ( distance >= levelDistance ) {
+				if ( distance >= levels[ i ].distance ) {
 
 					levels[ i - 1 ].object.visible = false;
 					levels[ i ].object.visible = true;
@@ -180,11 +171,11 @@ class LOD extends Object3D {
 
 		}
 
-	}
+	},
 
-	toJSON( meta ) {
+	toJSON: function ( meta ) {
 
-		const data = super.toJSON( meta );
+		const data = Object3D.prototype.toJSON.call( this, meta );
 
 		if ( this.autoUpdate === false ) data.object.autoUpdate = false;
 
@@ -198,8 +189,7 @@ class LOD extends Object3D {
 
 			data.object.levels.push( {
 				object: level.object.uuid,
-				distance: level.distance,
-				hysteresis: level.hysteresis
+				distance: level.distance
 			} );
 
 		}
@@ -208,7 +198,7 @@ class LOD extends Object3D {
 
 	}
 
-}
+} );
 
 
 export { LOD };

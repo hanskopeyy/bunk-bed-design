@@ -1,41 +1,61 @@
-class Vector4 {
+/**
+ * @author supereggbert / http://www.paulbrunt.co.uk/
+ * @author philogb / http://blog.thejit.org/
+ * @author mikael emtinger / http://gomo.se/
+ * @author egraether / http://egraether.com/
+ * @author WestLangley / http://github.com/WestLangley
+ */
 
-	constructor( x = 0, y = 0, z = 0, w = 1 ) {
+function Vector4( x = 0, y = 0, z = 0, w = 1 ) {
 
-		Vector4.prototype.isVector4 = true;
+	this.x = x;
+	this.y = y;
+	this.z = z;
+	this.w = w;
 
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.w = w;
+}
+
+Object.defineProperties( Vector4.prototype, {
+
+	"width": {
+
+		get: function () {
+
+			return this.z;
+
+		},
+
+		set: function ( value ) {
+
+			this.z = value;
+
+		}
+
+	},
+
+	"height": {
+
+		get: function () {
+
+			return this.w;
+
+		},
+
+		set: function ( value ) {
+
+			this.w = value;
+
+		}
 
 	}
 
-	get width() {
+} );
 
-		return this.z;
+Object.assign( Vector4.prototype, {
 
-	}
+	isVector4: true,
 
-	set width( value ) {
-
-		this.z = value;
-
-	}
-
-	get height() {
-
-		return this.w;
-
-	}
-
-	set height( value ) {
-
-		this.w = value;
-
-	}
-
-	set( x, y, z, w ) {
+	set: function ( x, y, z, w ) {
 
 		this.x = x;
 		this.y = y;
@@ -44,9 +64,9 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	setScalar( scalar ) {
+	setScalar: function ( scalar ) {
 
 		this.x = scalar;
 		this.y = scalar;
@@ -55,41 +75,41 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	setX( x ) {
+	setX: function ( x ) {
 
 		this.x = x;
 
 		return this;
 
-	}
+	},
 
-	setY( y ) {
+	setY: function ( y ) {
 
 		this.y = y;
 
 		return this;
 
-	}
+	},
 
-	setZ( z ) {
+	setZ: function ( z ) {
 
 		this.z = z;
 
 		return this;
 
-	}
+	},
 
-	setW( w ) {
+	setW: function ( w ) {
 
 		this.w = w;
 
 		return this;
 
-	}
+	},
 
-	setComponent( index, value ) {
+	setComponent: function ( index, value ) {
 
 		switch ( index ) {
 
@@ -103,9 +123,9 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	getComponent( index ) {
+	getComponent: function ( index ) {
 
 		switch ( index ) {
 
@@ -117,15 +137,15 @@ class Vector4 {
 
 		}
 
-	}
+	},
 
-	clone() {
+	clone: function () {
 
 		return new this.constructor( this.x, this.y, this.z, this.w );
 
-	}
+	},
 
-	copy( v ) {
+	copy: function ( v ) {
 
 		this.x = v.x;
 		this.y = v.y;
@@ -134,9 +154,16 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	add( v ) {
+	add: function ( v, w ) {
+
+		if ( w !== undefined ) {
+
+			console.warn( 'THREE.Vector4: .add() now only accepts one argument. Use .addVectors( a, b ) instead.' );
+			return this.addVectors( v, w );
+
+		}
 
 		this.x += v.x;
 		this.y += v.y;
@@ -145,9 +172,9 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	addScalar( s ) {
+	addScalar: function ( s ) {
 
 		this.x += s;
 		this.y += s;
@@ -156,9 +183,9 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	addVectors( a, b ) {
+	addVectors: function ( a, b ) {
 
 		this.x = a.x + b.x;
 		this.y = a.y + b.y;
@@ -167,9 +194,9 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	addScaledVector( v, s ) {
+	addScaledVector: function ( v, s ) {
 
 		this.x += v.x * s;
 		this.y += v.y * s;
@@ -178,9 +205,16 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	sub( v ) {
+	sub: function ( v, w ) {
+
+		if ( w !== undefined ) {
+
+			console.warn( 'THREE.Vector4: .sub() now only accepts one argument. Use .subVectors( a, b ) instead.' );
+			return this.subVectors( v, w );
+
+		}
 
 		this.x -= v.x;
 		this.y -= v.y;
@@ -189,9 +223,9 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	subScalar( s ) {
+	subScalar: function ( s ) {
 
 		this.x -= s;
 		this.y -= s;
@@ -200,9 +234,9 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	subVectors( a, b ) {
+	subVectors: function ( a, b ) {
 
 		this.x = a.x - b.x;
 		this.y = a.y - b.y;
@@ -211,20 +245,9 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	multiply( v ) {
-
-		this.x *= v.x;
-		this.y *= v.y;
-		this.z *= v.z;
-		this.w *= v.w;
-
-		return this;
-
-	}
-
-	multiplyScalar( scalar ) {
+	multiplyScalar: function ( scalar ) {
 
 		this.x *= scalar;
 		this.y *= scalar;
@@ -233,9 +256,9 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	applyMatrix4( m ) {
+	applyMatrix4: function ( m ) {
 
 		const x = this.x, y = this.y, z = this.z, w = this.w;
 		const e = m.elements;
@@ -247,15 +270,15 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	divideScalar( scalar ) {
+	divideScalar: function ( scalar ) {
 
 		return this.multiplyScalar( 1 / scalar );
 
-	}
+	},
 
-	setAxisAngleFromQuaternion( q ) {
+	setAxisAngleFromQuaternion: function ( q ) {
 
 		// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToAngle/index.htm
 
@@ -281,9 +304,9 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	setAxisAngleFromRotationMatrix( m ) {
+	setAxisAngleFromRotationMatrix: function ( m ) {
 
 		// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToAngle/index.htm
 
@@ -411,9 +434,9 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	min( v ) {
+	min: function ( v ) {
 
 		this.x = Math.min( this.x, v.x );
 		this.y = Math.min( this.y, v.y );
@@ -422,9 +445,9 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	max( v ) {
+	max: function ( v ) {
 
 		this.x = Math.max( this.x, v.x );
 		this.y = Math.max( this.y, v.y );
@@ -433,9 +456,9 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	clamp( min, max ) {
+	clamp: function ( min, max ) {
 
 		// assumes min < max, componentwise
 
@@ -446,9 +469,9 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	clampScalar( minVal, maxVal ) {
+	clampScalar: function ( minVal, maxVal ) {
 
 		this.x = Math.max( minVal, Math.min( maxVal, this.x ) );
 		this.y = Math.max( minVal, Math.min( maxVal, this.y ) );
@@ -457,17 +480,17 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	clampLength( min, max ) {
+	clampLength: function ( min, max ) {
 
 		const length = this.length();
 
 		return this.divideScalar( length || 1 ).multiplyScalar( Math.max( min, Math.min( max, length ) ) );
 
-	}
+	},
 
-	floor() {
+	floor: function () {
 
 		this.x = Math.floor( this.x );
 		this.y = Math.floor( this.y );
@@ -476,9 +499,9 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	ceil() {
+	ceil: function () {
 
 		this.x = Math.ceil( this.x );
 		this.y = Math.ceil( this.y );
@@ -487,9 +510,9 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	round() {
+	round: function () {
 
 		this.x = Math.round( this.x );
 		this.y = Math.round( this.y );
@@ -498,20 +521,20 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	roundToZero() {
+	roundToZero: function () {
 
-		this.x = Math.trunc( this.x );
-		this.y = Math.trunc( this.y );
-		this.z = Math.trunc( this.z );
-		this.w = Math.trunc( this.w );
+		this.x = ( this.x < 0 ) ? Math.ceil( this.x ) : Math.floor( this.x );
+		this.y = ( this.y < 0 ) ? Math.ceil( this.y ) : Math.floor( this.y );
+		this.z = ( this.z < 0 ) ? Math.ceil( this.z ) : Math.floor( this.z );
+		this.w = ( this.w < 0 ) ? Math.ceil( this.w ) : Math.floor( this.w );
 
 		return this;
 
-	}
+	},
 
-	negate() {
+	negate: function () {
 
 		this.x = - this.x;
 		this.y = - this.y;
@@ -520,45 +543,45 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	dot( v ) {
+	dot: function ( v ) {
 
 		return this.x * v.x + this.y * v.y + this.z * v.z + this.w * v.w;
 
-	}
+	},
 
-	lengthSq() {
+	lengthSq: function () {
 
 		return this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w;
 
-	}
+	},
 
-	length() {
+	length: function () {
 
 		return Math.sqrt( this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w );
 
-	}
+	},
 
-	manhattanLength() {
+	manhattanLength: function () {
 
 		return Math.abs( this.x ) + Math.abs( this.y ) + Math.abs( this.z ) + Math.abs( this.w );
 
-	}
+	},
 
-	normalize() {
+	normalize: function () {
 
 		return this.divideScalar( this.length() || 1 );
 
-	}
+	},
 
-	setLength( length ) {
+	setLength: function ( length ) {
 
 		return this.normalize().multiplyScalar( length );
 
-	}
+	},
 
-	lerp( v, alpha ) {
+	lerp: function ( v, alpha ) {
 
 		this.x += ( v.x - this.x ) * alpha;
 		this.y += ( v.y - this.y ) * alpha;
@@ -567,9 +590,9 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	lerpVectors( v1, v2, alpha ) {
+	lerpVectors: function ( v1, v2, alpha ) {
 
 		this.x = v1.x + ( v2.x - v1.x ) * alpha;
 		this.y = v1.y + ( v2.y - v1.y ) * alpha;
@@ -578,15 +601,17 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	equals( v ) {
+	equals: function ( v ) {
 
 		return ( ( v.x === this.x ) && ( v.y === this.y ) && ( v.z === this.z ) && ( v.w === this.w ) );
 
-	}
+	},
 
-	fromArray( array, offset = 0 ) {
+	fromArray: function ( array, offset ) {
+
+		if ( offset === undefined ) offset = 0;
 
 		this.x = array[ offset ];
 		this.y = array[ offset + 1 ];
@@ -595,9 +620,12 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	toArray( array = [], offset = 0 ) {
+	toArray: function ( array, offset ) {
+
+		if ( array === undefined ) array = [];
+		if ( offset === undefined ) offset = 0;
 
 		array[ offset ] = this.x;
 		array[ offset + 1 ] = this.y;
@@ -606,9 +634,15 @@ class Vector4 {
 
 		return array;
 
-	}
+	},
 
-	fromBufferAttribute( attribute, index ) {
+	fromBufferAttribute: function ( attribute, index, offset ) {
+
+		if ( offset !== undefined ) {
+
+			console.warn( 'THREE.Vector4: offset has been removed from .fromBufferAttribute().' );
+
+		}
 
 		this.x = attribute.getX( index );
 		this.y = attribute.getY( index );
@@ -617,9 +651,9 @@ class Vector4 {
 
 		return this;
 
-	}
+	},
 
-	random() {
+	random: function () {
 
 		this.x = Math.random();
 		this.y = Math.random();
@@ -630,15 +664,7 @@ class Vector4 {
 
 	}
 
-	*[ Symbol.iterator ]() {
+} );
 
-		yield this.x;
-		yield this.y;
-		yield this.z;
-		yield this.w;
-
-	}
-
-}
 
 export { Vector4 };

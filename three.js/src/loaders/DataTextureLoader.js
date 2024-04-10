@@ -4,20 +4,24 @@ import { DataTexture } from '../textures/DataTexture.js';
 import { Loader } from './Loader.js';
 
 /**
+ * @author Nikos M. / https://github.com/foo123/
+ *
  * Abstract Base class to load generic binary textures formats (rgbe, hdr, ...)
  *
  * Sub classes have to implement the parse() method which will be used in load().
  */
 
-class DataTextureLoader extends Loader {
+function DataTextureLoader( manager ) {
 
-	constructor( manager ) {
+	Loader.call( this, manager );
 
-		super( manager );
+}
 
-	}
+DataTextureLoader.prototype = Object.assign( Object.create( Loader.prototype ), {
 
-	load( url, onLoad, onProgress, onError ) {
+	constructor: DataTextureLoader,
+
+	load: function ( url, onLoad, onProgress, onError ) {
 
 		const scope = this;
 
@@ -25,31 +29,12 @@ class DataTextureLoader extends Loader {
 
 		const loader = new FileLoader( this.manager );
 		loader.setResponseType( 'arraybuffer' );
-		loader.setRequestHeader( this.requestHeader );
 		loader.setPath( this.path );
-		loader.setWithCredentials( scope.withCredentials );
 		loader.load( url, function ( buffer ) {
 
-			let texData;
+			const texData = scope.parse( buffer );
 
-			try {
-
-				texData = scope.parse( buffer );
-
-			} catch ( error ) {
-
-				if ( onError !== undefined ) {
-
-					onError( error );
-
-				} else {
-
-					console.error( error );
-					return;
-
-				}
-
-			}
+			if ( ! texData ) return;
 
 			if ( texData.image !== undefined ) {
 
@@ -70,18 +55,6 @@ class DataTextureLoader extends Loader {
 			texture.minFilter = texData.minFilter !== undefined ? texData.minFilter : LinearFilter;
 
 			texture.anisotropy = texData.anisotropy !== undefined ? texData.anisotropy : 1;
-
-			if ( texData.colorSpace !== undefined ) {
-
-				texture.colorSpace = texData.colorSpace;
-
-			}
-
-			if ( texData.flipY !== undefined ) {
-
-				texture.flipY = texData.flipY;
-
-			}
 
 			if ( texData.format !== undefined ) {
 
@@ -108,12 +81,6 @@ class DataTextureLoader extends Loader {
 
 			}
 
-			if ( texData.generateMipmaps !== undefined ) {
-
-				texture.generateMipmaps = texData.generateMipmaps;
-
-			}
-
 			texture.needsUpdate = true;
 
 			if ( onLoad ) onLoad( texture, texData );
@@ -125,7 +92,7 @@ class DataTextureLoader extends Loader {
 
 	}
 
-}
+} );
 
 
 export { DataTextureLoader };

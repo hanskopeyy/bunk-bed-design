@@ -1,48 +1,59 @@
 import { Vector3 } from '../math/Vector3.js';
 import { BufferAttribute } from './BufferAttribute.js';
-import { denormalize, normalize } from '../math/MathUtils.js';
 
-const _vector = /*@__PURE__*/ new Vector3();
+/**
+ * @author benaadams / https://twitter.com/ben_a_adams
+ */
 
-class InterleavedBufferAttribute {
+const _vector = new Vector3();
 
-	constructor( interleavedBuffer, itemSize, offset, normalized = false ) {
+function InterleavedBufferAttribute( interleavedBuffer, itemSize, offset, normalized ) {
 
-		this.isInterleavedBufferAttribute = true;
+	this.name = '';
 
-		this.name = '';
+	this.data = interleavedBuffer;
+	this.itemSize = itemSize;
+	this.offset = offset;
 
-		this.data = interleavedBuffer;
-		this.itemSize = itemSize;
-		this.offset = offset;
+	this.normalized = normalized === true;
 
-		this.normalized = normalized;
+}
+
+Object.defineProperties( InterleavedBufferAttribute.prototype, {
+
+	count: {
+
+		get: function () {
+
+			return this.data.count;
+
+		}
+
+	},
+
+	array: {
+
+		get: function () {
+
+			return this.data.array;
+
+		}
 
 	}
 
-	get count() {
+} );
 
-		return this.data.count;
+Object.assign( InterleavedBufferAttribute.prototype, {
 
-	}
+	isInterleavedBufferAttribute: true,
 
-	get array() {
-
-		return this.data.array;
-
-	}
-
-	set needsUpdate( value ) {
-
-		this.data.needsUpdate = value;
-
-	}
-
-	applyMatrix4( m ) {
+	applyMatrix4: function ( m ) {
 
 		for ( let i = 0, l = this.data.count; i < l; i ++ ) {
 
-			_vector.fromBufferAttribute( this, i );
+			_vector.x = this.getX( i );
+			_vector.y = this.getY( i );
+			_vector.z = this.getZ( i );
 
 			_vector.applyMatrix4( m );
 
@@ -52,169 +63,78 @@ class InterleavedBufferAttribute {
 
 		return this;
 
-	}
+	},
 
-	applyNormalMatrix( m ) {
-
-		for ( let i = 0, l = this.count; i < l; i ++ ) {
-
-			_vector.fromBufferAttribute( this, i );
-
-			_vector.applyNormalMatrix( m );
-
-			this.setXYZ( i, _vector.x, _vector.y, _vector.z );
-
-		}
-
-		return this;
-
-	}
-
-	transformDirection( m ) {
-
-		for ( let i = 0, l = this.count; i < l; i ++ ) {
-
-			_vector.fromBufferAttribute( this, i );
-
-			_vector.transformDirection( m );
-
-			this.setXYZ( i, _vector.x, _vector.y, _vector.z );
-
-		}
-
-		return this;
-
-	}
-
-	getComponent( index, component ) {
-
-		let value = this.array[ index * this.data.stride + this.offset + component ];
-
-		if ( this.normalized ) value = denormalize( value, this.array );
-
-		return value;
-
-	}
-
-	setComponent( index, component, value ) {
-
-		if ( this.normalized ) value = normalize( value, this.array );
-
-		this.data.array[ index * this.data.stride + this.offset + component ] = value;
-
-		return this;
-
-	}
-
-	setX( index, x ) {
-
-		if ( this.normalized ) x = normalize( x, this.array );
+	setX: function ( index, x ) {
 
 		this.data.array[ index * this.data.stride + this.offset ] = x;
 
 		return this;
 
-	}
+	},
 
-	setY( index, y ) {
-
-		if ( this.normalized ) y = normalize( y, this.array );
+	setY: function ( index, y ) {
 
 		this.data.array[ index * this.data.stride + this.offset + 1 ] = y;
 
 		return this;
 
-	}
+	},
 
-	setZ( index, z ) {
-
-		if ( this.normalized ) z = normalize( z, this.array );
+	setZ: function ( index, z ) {
 
 		this.data.array[ index * this.data.stride + this.offset + 2 ] = z;
 
 		return this;
 
-	}
+	},
 
-	setW( index, w ) {
-
-		if ( this.normalized ) w = normalize( w, this.array );
+	setW: function ( index, w ) {
 
 		this.data.array[ index * this.data.stride + this.offset + 3 ] = w;
 
 		return this;
 
-	}
+	},
 
-	getX( index ) {
+	getX: function ( index ) {
 
-		let x = this.data.array[ index * this.data.stride + this.offset ];
+		return this.data.array[ index * this.data.stride + this.offset ];
 
-		if ( this.normalized ) x = denormalize( x, this.array );
+	},
 
-		return x;
+	getY: function ( index ) {
 
-	}
+		return this.data.array[ index * this.data.stride + this.offset + 1 ];
 
-	getY( index ) {
+	},
 
-		let y = this.data.array[ index * this.data.stride + this.offset + 1 ];
+	getZ: function ( index ) {
 
-		if ( this.normalized ) y = denormalize( y, this.array );
+		return this.data.array[ index * this.data.stride + this.offset + 2 ];
 
-		return y;
+	},
 
-	}
+	getW: function ( index ) {
 
-	getZ( index ) {
+		return this.data.array[ index * this.data.stride + this.offset + 3 ];
 
-		let z = this.data.array[ index * this.data.stride + this.offset + 2 ];
+	},
 
-		if ( this.normalized ) z = denormalize( z, this.array );
-
-		return z;
-
-	}
-
-	getW( index ) {
-
-		let w = this.data.array[ index * this.data.stride + this.offset + 3 ];
-
-		if ( this.normalized ) w = denormalize( w, this.array );
-
-		return w;
-
-	}
-
-	setXY( index, x, y ) {
+	setXY: function ( index, x, y ) {
 
 		index = index * this.data.stride + this.offset;
-
-		if ( this.normalized ) {
-
-			x = normalize( x, this.array );
-			y = normalize( y, this.array );
-
-		}
 
 		this.data.array[ index + 0 ] = x;
 		this.data.array[ index + 1 ] = y;
 
 		return this;
 
-	}
+	},
 
-	setXYZ( index, x, y, z ) {
+	setXYZ: function ( index, x, y, z ) {
 
 		index = index * this.data.stride + this.offset;
-
-		if ( this.normalized ) {
-
-			x = normalize( x, this.array );
-			y = normalize( y, this.array );
-			z = normalize( z, this.array );
-
-		}
 
 		this.data.array[ index + 0 ] = x;
 		this.data.array[ index + 1 ] = y;
@@ -222,20 +142,11 @@ class InterleavedBufferAttribute {
 
 		return this;
 
-	}
+	},
 
-	setXYZW( index, x, y, z, w ) {
+	setXYZW: function ( index, x, y, z, w ) {
 
 		index = index * this.data.stride + this.offset;
-
-		if ( this.normalized ) {
-
-			x = normalize( x, this.array );
-			y = normalize( y, this.array );
-			z = normalize( z, this.array );
-			w = normalize( w, this.array );
-
-		}
 
 		this.data.array[ index + 0 ] = x;
 		this.data.array[ index + 1 ] = y;
@@ -244,13 +155,13 @@ class InterleavedBufferAttribute {
 
 		return this;
 
-	}
+	},
 
-	clone( data ) {
+	clone: function ( data ) {
 
 		if ( data === undefined ) {
 
-			console.log( 'THREE.InterleavedBufferAttribute.clone(): Cloning an interleaved buffer attribute will de-interleave buffer data.' );
+			console.log( 'THREE.InterleavedBufferAttribute.clone(): Cloning an interlaved buffer attribute will deinterleave buffer data.' );
 
 			const array = [];
 
@@ -286,13 +197,13 @@ class InterleavedBufferAttribute {
 
 		}
 
-	}
+	},
 
-	toJSON( data ) {
+	toJSON: function ( data ) {
 
 		if ( data === undefined ) {
 
-			console.log( 'THREE.InterleavedBufferAttribute.toJSON(): Serializing an interleaved buffer attribute will de-interleave buffer data.' );
+			console.log( 'THREE.InterleavedBufferAttribute.toJSON(): Serializing an interlaved buffer attribute will deinterleave buffer data.' );
 
 			const array = [];
 
@@ -308,7 +219,7 @@ class InterleavedBufferAttribute {
 
 			}
 
-			// de-interleave data and save it as an ordinary buffer attribute for now
+			// deinterleave data and save it as an ordinary buffer attribute for now
 
 			return {
 				itemSize: this.itemSize,
@@ -319,7 +230,7 @@ class InterleavedBufferAttribute {
 
 		} else {
 
-			// save as true interleaved attribute
+			// save as true interlaved attribtue
 
 			if ( data.interleavedBuffers === undefined ) {
 
@@ -345,7 +256,7 @@ class InterleavedBufferAttribute {
 
 	}
 
-}
+} );
 
 
 export { InterleavedBufferAttribute };

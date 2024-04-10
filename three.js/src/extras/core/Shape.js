@@ -1,21 +1,34 @@
 import { Path } from './Path.js';
-import * as MathUtils from '../../math/MathUtils.js';
+import { MathUtils } from '../../math/MathUtils.js';
 
-class Shape extends Path {
+/**
+ * @author zz85 / http://www.lab4games.net/zz85/blog
+ * Defines a 2d shape plane using paths.
+ **/
 
-	constructor( points ) {
+// STEP 1 Create a path.
+// STEP 2 Turn path into shape.
+// STEP 3 ExtrudeGeometry takes in Shape/Shapes
+// STEP 3a - Extract points from each shape, turn to vertices
+// STEP 3b - Triangulate each shape, add faces.
 
-		super( points );
+function Shape( points ) {
 
-		this.uuid = MathUtils.generateUUID();
+	Path.call( this, points );
 
-		this.type = 'Shape';
+	this.uuid = MathUtils.generateUUID();
 
-		this.holes = [];
+	this.type = 'Shape';
 
-	}
+	this.holes = [];
 
-	getPointsHoles( divisions ) {
+}
+
+Shape.prototype = Object.assign( Object.create( Path.prototype ), {
+
+	constructor: Shape,
+
+	getPointsHoles: function ( divisions ) {
 
 		const holesPts = [];
 
@@ -27,11 +40,11 @@ class Shape extends Path {
 
 		return holesPts;
 
-	}
+	},
 
 	// get points of shape and holes (keypoints based on segments parameter)
 
-	extractPoints( divisions ) {
+	extractPoints: function ( divisions ) {
 
 		return {
 
@@ -40,11 +53,11 @@ class Shape extends Path {
 
 		};
 
-	}
+	},
 
-	copy( source ) {
+	copy: function ( source ) {
 
-		super.copy( source );
+		Path.prototype.copy.call( this, source );
 
 		this.holes = [];
 
@@ -58,11 +71,11 @@ class Shape extends Path {
 
 		return this;
 
-	}
+	},
 
-	toJSON() {
+	toJSON: function () {
 
-		const data = super.toJSON();
+		const data = Path.prototype.toJSON.call( this );
 
 		data.uuid = this.uuid;
 		data.holes = [];
@@ -76,11 +89,11 @@ class Shape extends Path {
 
 		return data;
 
-	}
+	},
 
-	fromJSON( json ) {
+	fromJSON: function ( json ) {
 
-		super.fromJSON( json );
+		Path.prototype.fromJSON.call( this, json );
 
 		this.uuid = json.uuid;
 		this.holes = [];
@@ -96,7 +109,7 @@ class Shape extends Path {
 
 	}
 
-}
+} );
 
 
 export { Shape };

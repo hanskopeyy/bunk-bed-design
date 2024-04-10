@@ -4,12 +4,12 @@ export default /* glsl */`
 	#ifdef ENV_WORLDPOS
 
 		vec3 cameraToFrag;
-
+		
 		if ( isOrthographic ) {
 
 			cameraToFrag = normalize( vec3( - viewMatrix[ 0 ][ 2 ], - viewMatrix[ 1 ][ 2 ], - viewMatrix[ 2 ][ 2 ] ) );
 
-		} else {
+		}  else {
 
 			cameraToFrag = normalize( vWorldPosition - cameraPosition );
 
@@ -36,11 +36,29 @@ export default /* glsl */`
 
 	#ifdef ENVMAP_TYPE_CUBE
 
-		vec4 envColor = textureCube( envMap, envMapRotation * vec3( flipEnvMap * reflectVec.x, reflectVec.yz ) );
+		vec4 envColor = textureCube( envMap, vec3( flipEnvMap * reflectVec.x, reflectVec.yz ) );
+
+	#elif defined( ENVMAP_TYPE_CUBE_UV )
+
+		vec4 envColor = textureCubeUV( envMap, reflectVec, 0.0 );
+
+	#elif defined( ENVMAP_TYPE_EQUIREC )
+
+		reflectVec = normalize( reflectVec );
+
+		vec2 sampleUV = equirectUv( reflectVec );
+
+		vec4 envColor = texture2D( envMap, sampleUV );
 
 	#else
 
 		vec4 envColor = vec4( 0.0 );
+
+	#endif
+
+	#ifndef ENVMAP_TYPE_CUBE_UV
+
+		envColor = envMapTexelToLinear( envColor );
 
 	#endif
 

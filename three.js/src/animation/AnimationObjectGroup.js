@@ -1,5 +1,5 @@
 import { PropertyBinding } from './PropertyBinding.js';
-import * as MathUtils from '../math/MathUtils.js';
+import { MathUtils } from '../math/MathUtils.js';
 
 /**
  *
@@ -28,63 +28,65 @@ import * as MathUtils from '../math/MathUtils.js';
  *
  *  - A single property can either be controlled through a
  *    target group or directly, but not both.
+ *
+ * @author tschw
  */
 
-class AnimationObjectGroup {
+function AnimationObjectGroup() {
 
-	constructor() {
+	this.uuid = MathUtils.generateUUID();
 
-		this.isAnimationObjectGroup = true;
+	// cached objects followed by the active ones
+	this._objects = Array.prototype.slice.call( arguments );
 
-		this.uuid = MathUtils.generateUUID();
+	this.nCachedObjects_ = 0; // threshold
+	// note: read by PropertyBinding.Composite
 
-		// cached objects followed by the active ones
-		this._objects = Array.prototype.slice.call( arguments );
+	const indices = {};
+	this._indicesByUUID = indices; // for bookkeeping
 
-		this.nCachedObjects_ = 0; // threshold
-		// note: read by PropertyBinding.Composite
+	for ( let i = 0, n = arguments.length; i !== n; ++ i ) {
 
-		const indices = {};
-		this._indicesByUUID = indices; // for bookkeeping
-
-		for ( let i = 0, n = arguments.length; i !== n; ++ i ) {
-
-			indices[ arguments[ i ].uuid ] = i;
-
-		}
-
-		this._paths = []; // inside: string
-		this._parsedPaths = []; // inside: { we don't care, here }
-		this._bindings = []; // inside: Array< PropertyBinding >
-		this._bindingsIndicesByPath = {}; // inside: indices in these arrays
-
-		const scope = this;
-
-		this.stats = {
-
-			objects: {
-				get total() {
-
-					return scope._objects.length;
-
-				},
-				get inUse() {
-
-					return this.total - scope.nCachedObjects_;
-
-				}
-			},
-			get bindingsPerObject() {
-
-				return scope._bindings.length;
-
-			}
-
-		};
+		indices[ arguments[ i ].uuid ] = i;
 
 	}
 
-	add() {
+	this._paths = []; // inside: string
+	this._parsedPaths = []; // inside: { we don't care, here }
+	this._bindings = []; // inside: Array< PropertyBinding >
+	this._bindingsIndicesByPath = {}; // inside: indices in these arrays
+
+	const scope = this;
+
+	this.stats = {
+
+		objects: {
+			get total() {
+
+				return scope._objects.length;
+
+			},
+			get inUse() {
+
+				return this.total - scope.nCachedObjects_;
+
+			}
+		},
+		get bindingsPerObject() {
+
+			return scope._bindings.length;
+
+		}
+
+	};
+
+}
+
+Object.assign( AnimationObjectGroup.prototype, {
+
+	isAnimationObjectGroup: true,
+
+	add: function () {
 
 		const objects = this._objects,
 			indicesByUUID = this._indicesByUUID,
@@ -170,9 +172,9 @@ class AnimationObjectGroup {
 
 		this.nCachedObjects_ = nCachedObjects;
 
-	}
+	},
 
-	remove() {
+	remove: function () {
 
 		const objects = this._objects,
 			indicesByUUID = this._indicesByUUID,
@@ -219,10 +221,10 @@ class AnimationObjectGroup {
 
 		this.nCachedObjects_ = nCachedObjects;
 
-	}
+	},
 
 	// remove & forget
-	uncache() {
+	uncache: function () {
 
 		const objects = this._objects,
 			indicesByUUID = this._indicesByUUID,
@@ -281,12 +283,7 @@ class AnimationObjectGroup {
 					const lastIndex = -- nObjects,
 						lastObject = objects[ lastIndex ];
 
-					if ( lastIndex > 0 ) {
-
-						indicesByUUID[ lastObject.uuid ] = index;
-
-					}
-
+					indicesByUUID[ lastObject.uuid ] = index;
 					objects[ index ] = lastObject;
 					objects.pop();
 
@@ -309,18 +306,18 @@ class AnimationObjectGroup {
 
 		this.nCachedObjects_ = nCachedObjects;
 
-	}
+	},
 
 	// Internal interface used by befriended PropertyBinding.Composite:
 
-	subscribe_( path, parsedPath ) {
+	subscribe_: function ( path, parsedPath ) {
 
 		// returns an array of bindings for the given path that is changed
 		// according to the contained objects in the group
 
-		const indicesByPath = this._bindingsIndicesByPath;
-		let index = indicesByPath[ path ];
-		const bindings = this._bindings;
+		let indicesByPath = this._bindingsIndicesByPath,
+			index = indicesByPath[ path ],
+			bindings = this._bindings;
 
 		if ( index !== undefined ) return bindings[ index ];
 
@@ -348,9 +345,9 @@ class AnimationObjectGroup {
 
 		return bindingsForPath;
 
-	}
+	},
 
-	unsubscribe_( path ) {
+	unsubscribe_: function ( path ) {
 
 		// tells the group to forget about a property path and no longer
 		// update the array previously obtained with 'subscribe_'
@@ -382,6 +379,7 @@ class AnimationObjectGroup {
 
 	}
 
-}
+} );
+
 
 export { AnimationObjectGroup };

@@ -3,17 +3,21 @@ import { Quaternion } from '../Quaternion.js';
 
 /**
  * Spherical linear unit quaternion interpolant.
+ *
+ * @author tschw
  */
 
-class QuaternionLinearInterpolant extends Interpolant {
+function QuaternionLinearInterpolant( parameterPositions, sampleValues, sampleSize, resultBuffer ) {
 
-	constructor( parameterPositions, sampleValues, sampleSize, resultBuffer ) {
+	Interpolant.call( this, parameterPositions, sampleValues, sampleSize, resultBuffer );
 
-		super( parameterPositions, sampleValues, sampleSize, resultBuffer );
+}
 
-	}
+QuaternionLinearInterpolant.prototype = Object.assign( Object.create( Interpolant.prototype ), {
 
-	interpolate_( i1, t0, t, t1 ) {
+	constructor: QuaternionLinearInterpolant,
+
+	interpolate_: function ( i1, t0, t, t1 ) {
 
 		const result = this.resultBuffer,
 			values = this.sampleValues,
@@ -33,7 +37,7 @@ class QuaternionLinearInterpolant extends Interpolant {
 
 	}
 
-}
+} );
 
 
 export { QuaternionLinearInterpolant };

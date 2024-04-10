@@ -1,77 +1,74 @@
 import { Object3D } from '../core/Object3D.js';
-import { Euler } from '../math/Euler.js';
 
-class Scene extends Object3D {
+/**
+ * @author mrdoob / http://mrdoob.com/
+ */
 
-	constructor() {
+function Scene() {
 
-		super();
+	Object3D.call( this );
 
-		this.isScene = true;
+	this.type = 'Scene';
 
-		this.type = 'Scene';
+	this.background = null;
+	this.environment = null;
+	this.fog = null;
 
-		this.background = null;
-		this.environment = null;
-		this.fog = null;
+	this.overrideMaterial = null;
 
-		this.backgroundBlurriness = 0;
-		this.backgroundIntensity = 1;
-		this.backgroundRotation = new Euler();
+	this.autoUpdate = true; // checked by the renderer
 
-		this.environmentIntensity = 1;
-		this.environmentRotation = new Euler();
+	if ( typeof __THREE_DEVTOOLS__ !== 'undefined' ) {
 
-		this.overrideMaterial = null;
-
-		if ( typeof __THREE_DEVTOOLS__ !== 'undefined' ) {
-
-			__THREE_DEVTOOLS__.dispatchEvent( new CustomEvent( 'observe', { detail: this } ) );
-
-		}
+		__THREE_DEVTOOLS__.dispatchEvent( new CustomEvent( 'observe', { detail: this } ) ); // eslint-disable-line no-undef
 
 	}
 
-	copy( source, recursive ) {
+}
 
-		super.copy( source, recursive );
+Scene.prototype = Object.assign( Object.create( Object3D.prototype ), {
+
+	constructor: Scene,
+
+	isScene: true,
+
+	copy: function ( source, recursive ) {
+
+		Object3D.prototype.copy.call( this, source, recursive );
 
 		if ( source.background !== null ) this.background = source.background.clone();
 		if ( source.environment !== null ) this.environment = source.environment.clone();
 		if ( source.fog !== null ) this.fog = source.fog.clone();
 
-		this.backgroundBlurriness = source.backgroundBlurriness;
-		this.backgroundIntensity = source.backgroundIntensity;
-		this.backgroundRotation.copy( source.backgroundRotation );
-
-		this.environmentIntensity = source.environmentIntensity;
-		this.environmentRotation.copy( source.environmentRotation );
-
 		if ( source.overrideMaterial !== null ) this.overrideMaterial = source.overrideMaterial.clone();
 
+		this.autoUpdate = source.autoUpdate;
 		this.matrixAutoUpdate = source.matrixAutoUpdate;
 
 		return this;
 
-	}
+	},
 
-	toJSON( meta ) {
+	toJSON: function ( meta ) {
 
-		const data = super.toJSON( meta );
+		const data = Object3D.prototype.toJSON.call( this, meta );
 
+		if ( this.background !== null ) data.object.background = this.background.toJSON( meta );
+		if ( this.environment !== null ) data.object.environment = this.environment.toJSON( meta );
 		if ( this.fog !== null ) data.object.fog = this.fog.toJSON();
-
-		if ( this.backgroundBlurriness > 0 ) data.object.backgroundBlurriness = this.backgroundBlurriness;
-		if ( this.backgroundIntensity !== 1 ) data.object.backgroundIntensity = this.backgroundIntensity;
-		data.object.backgroundRotation = this.backgroundRotation.toArray();
-
-		if ( this.environmentIntensity !== 1 ) data.object.environmentIntensity = this.environmentIntensity;
-		data.object.environmentRotation = this.environmentRotation.toArray();
 
 		return data;
 
+	},
+
+	dispose: function () {
+
+		this.dispatchEvent( { type: 'dispose' } );
+
 	}
 
-}
+} );
+
+
 
 export { Scene };

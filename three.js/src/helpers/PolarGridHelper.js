@@ -1,96 +1,93 @@
+/**
+ * @author mrdoob / http://mrdoob.com/
+ * @author Mugen87 / http://github.com/Mugen87
+ * @author Hectate / http://www.github.com/Hectate
+ */
+
 import { LineSegments } from '../objects/LineSegments.js';
 import { LineBasicMaterial } from '../materials/LineBasicMaterial.js';
 import { Float32BufferAttribute } from '../core/BufferAttribute.js';
 import { BufferGeometry } from '../core/BufferGeometry.js';
 import { Color } from '../math/Color.js';
 
-class PolarGridHelper extends LineSegments {
+function PolarGridHelper( radius, radials, circles, divisions, color1, color2 ) {
 
-	constructor( radius = 10, sectors = 16, rings = 8, divisions = 64, color1 = 0x444444, color2 = 0x888888 ) {
+	radius = radius || 10;
+	radials = radials || 16;
+	circles = circles || 8;
+	divisions = divisions || 64;
+	color1 = new Color( color1 !== undefined ? color1 : 0x444444 );
+	color2 = new Color( color2 !== undefined ? color2 : 0x888888 );
 
-		color1 = new Color( color1 );
-		color2 = new Color( color2 );
+	const vertices = [];
+	const colors = [];
 
-		const vertices = [];
-		const colors = [];
+	// create the radials
 
-		// create the sectors
+	for ( let i = 0; i <= radials; i ++ ) {
 
-		if ( sectors > 1 ) {
+		const v = ( i / radials ) * ( Math.PI * 2 );
 
-			for ( let i = 0; i < sectors; i ++ ) {
+		const x = Math.sin( v ) * radius;
+		const z = Math.cos( v ) * radius;
 
-				const v = ( i / sectors ) * ( Math.PI * 2 );
+		vertices.push( 0, 0, 0 );
+		vertices.push( x, 0, z );
 
-				const x = Math.sin( v ) * radius;
-				const z = Math.cos( v ) * radius;
+		const color = ( i & 1 ) ? color1 : color2;
 
-				vertices.push( 0, 0, 0 );
-				vertices.push( x, 0, z );
-
-				const color = ( i & 1 ) ? color1 : color2;
-
-				colors.push( color.r, color.g, color.b );
-				colors.push( color.r, color.g, color.b );
-
-			}
-
-		}
-
-		// create the rings
-
-		for ( let i = 0; i < rings; i ++ ) {
-
-			const color = ( i & 1 ) ? color1 : color2;
-
-			const r = radius - ( radius / rings * i );
-
-			for ( let j = 0; j < divisions; j ++ ) {
-
-				// first vertex
-
-				let v = ( j / divisions ) * ( Math.PI * 2 );
-
-				let x = Math.sin( v ) * r;
-				let z = Math.cos( v ) * r;
-
-				vertices.push( x, 0, z );
-				colors.push( color.r, color.g, color.b );
-
-				// second vertex
-
-				v = ( ( j + 1 ) / divisions ) * ( Math.PI * 2 );
-
-				x = Math.sin( v ) * r;
-				z = Math.cos( v ) * r;
-
-				vertices.push( x, 0, z );
-				colors.push( color.r, color.g, color.b );
-
-			}
-
-		}
-
-		const geometry = new BufferGeometry();
-		geometry.setAttribute( 'position', new Float32BufferAttribute( vertices, 3 ) );
-		geometry.setAttribute( 'color', new Float32BufferAttribute( colors, 3 ) );
-
-		const material = new LineBasicMaterial( { vertexColors: true, toneMapped: false } );
-
-		super( geometry, material );
-
-		this.type = 'PolarGridHelper';
+		colors.push( color.r, color.g, color.b );
+		colors.push( color.r, color.g, color.b );
 
 	}
 
-	dispose() {
+	// create the circles
 
-		this.geometry.dispose();
-		this.material.dispose();
+	for ( let i = 0; i <= circles; i ++ ) {
+
+		const color = ( i & 1 ) ? color1 : color2;
+
+		const r = radius - ( radius / circles * i );
+
+		for ( let j = 0; j < divisions; j ++ ) {
+
+			// first vertex
+
+			let v = ( j / divisions ) * ( Math.PI * 2 );
+
+			let x = Math.sin( v ) * r;
+			let z = Math.cos( v ) * r;
+
+			vertices.push( x, 0, z );
+			colors.push( color.r, color.g, color.b );
+
+			// second vertex
+
+			v = ( ( j + 1 ) / divisions ) * ( Math.PI * 2 );
+
+			x = Math.sin( v ) * r;
+			z = Math.cos( v ) * r;
+
+			vertices.push( x, 0, z );
+			colors.push( color.r, color.g, color.b );
+
+		}
 
 	}
+
+	const geometry = new BufferGeometry();
+	geometry.setAttribute( 'position', new Float32BufferAttribute( vertices, 3 ) );
+	geometry.setAttribute( 'color', new Float32BufferAttribute( colors, 3 ) );
+
+	const material = new LineBasicMaterial( { vertexColors: true, toneMapped: false } );
+
+	LineSegments.call( this, geometry, material );
+
+	this.type = 'PolarGridHelper';
 
 }
 
+PolarGridHelper.prototype = Object.create( LineSegments.prototype );
+PolarGridHelper.prototype.constructor = PolarGridHelper;
 
 export { PolarGridHelper };

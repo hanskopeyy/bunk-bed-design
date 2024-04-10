@@ -1,6 +1,8 @@
 /**
+ * @author zz85 / http://www.lab4games.net/zz85/blog
+ *
  * Bezier Curves formulas obtained from
- * https://en.wikipedia.org/wiki/B%C3%A9zier_curve
+ * http://en.wikipedia.org/wiki/Bézier_curve
  */
 
 function CatmullRom( t, p0, p1, p2, p3 ) {

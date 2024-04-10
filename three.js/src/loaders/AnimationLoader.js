@@ -2,22 +2,26 @@ import { AnimationClip } from '../animation/AnimationClip.js';
 import { FileLoader } from './FileLoader.js';
 import { Loader } from './Loader.js';
 
-class AnimationLoader extends Loader {
+/**
+ * @author bhouston / http://clara.io/
+ */
 
-	constructor( manager ) {
+function AnimationLoader( manager ) {
 
-		super( manager );
+	Loader.call( this, manager );
 
-	}
+}
 
-	load( url, onLoad, onProgress, onError ) {
+AnimationLoader.prototype = Object.assign( Object.create( Loader.prototype ), {
+
+	constructor: AnimationLoader,
+
+	load: function ( url, onLoad, onProgress, onError ) {
 
 		const scope = this;
 
-		const loader = new FileLoader( this.manager );
-		loader.setPath( this.path );
-		loader.setRequestHeader( this.requestHeader );
-		loader.setWithCredentials( this.withCredentials );
+		const loader = new FileLoader( scope.manager );
+		loader.setPath( scope.path );
 		loader.load( url, function ( text ) {
 
 			try {
@@ -42,9 +46,9 @@ class AnimationLoader extends Loader {
 
 		}, onProgress, onError );
 
-	}
+	},
 
-	parse( json ) {
+	parse: function ( json ) {
 
 		const animations = [];
 
@@ -60,7 +64,7 @@ class AnimationLoader extends Loader {
 
 	}
 
-}
+} );
 
 
 export { AnimationLoader };

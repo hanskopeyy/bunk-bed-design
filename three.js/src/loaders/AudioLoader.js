@@ -2,23 +2,27 @@ import { AudioContext } from '../audio/AudioContext.js';
 import { FileLoader } from './FileLoader.js';
 import { Loader } from './Loader.js';
 
-class AudioLoader extends Loader {
+/**
+ * @author Reece Aaron Lecrivain / http://reecenotes.com/
+ */
 
-	constructor( manager ) {
+function AudioLoader( manager ) {
 
-		super( manager );
+	Loader.call( this, manager );
 
-	}
+}
 
-	load( url, onLoad, onProgress, onError ) {
+AudioLoader.prototype = Object.assign( Object.create( Loader.prototype ), {
+
+	constructor: AudioLoader,
+
+	load: function ( url, onLoad, onProgress, onError ) {
 
 		const scope = this;
 
-		const loader = new FileLoader( this.manager );
+		const loader = new FileLoader( scope.manager );
 		loader.setResponseType( 'arraybuffer' );
-		loader.setPath( this.path );
-		loader.setRequestHeader( this.requestHeader );
-		loader.setWithCredentials( this.withCredentials );
+		loader.setPath( scope.path );
 		loader.load( url, function ( buffer ) {
 
 			try {
@@ -32,35 +36,29 @@ class AudioLoader extends Loader {
 
 					onLoad( audioBuffer );
 
-				} ).catch( handleError );
+				} );
 
 			} catch ( e ) {
 
-				handleError( e );
+				if ( onError ) {
+
+					onError( e );
+
+				} else {
+
+					console.error( e );
+
+				}
+
+				scope.manager.itemError( url );
 
 			}
 
 		}, onProgress, onError );
 
-		function handleError( e ) {
-
-			if ( onError ) {
-
-				onError( e );
-
-			} else {
-
-				console.error( e );
-
-			}
-
-			scope.manager.itemError( url );
-
-		}
-
 	}
 
-}
+} );
 
 
 export { AudioLoader };

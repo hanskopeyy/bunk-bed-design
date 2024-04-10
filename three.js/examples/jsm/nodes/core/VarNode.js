@@ -1,60 +1,68 @@
-import Node, { addNodeClass } from './Node.js';
-import { addNodeElement, nodeProxy } from '../shadernode/ShaderNode.js';
+/**
+ * @author sunag / http://www.sunag.com.br/
+ */
 
-class VarNode extends Node {
+import { Node } from './Node.js';
 
-	constructor( node, name = null ) {
+function VarNode( type, value ) {
 
-		super();
+	Node.call( this, type );
 
-		this.node = node;
-		this.name = name;
-
-		this.isVarNode = true;
-
-	}
-
-	isGlobal() {
-
-		return true;
-
-	}
-
-	getHash( builder ) {
-
-		return this.name || super.getHash( builder );
-
-	}
-
-	getNodeType( builder ) {
-
-		return this.node.getNodeType( builder );
-
-	}
-
-	generate( builder ) {
-
-		const { node, name } = this;
-
-		const nodeVar = builder.getVarFromNode( this, name, builder.getVectorType( this.getNodeType( builder ) ) );
-
-		const propertyName = builder.getPropertyName( nodeVar );
-
-		const snippet = node.build( builder, nodeVar.type );
-
-		builder.addLineFlowCode( `${propertyName} = ${snippet}` );
-
-		return propertyName;
-
-	}
+	this.value = value;
 
 }
 
-export default VarNode;
+VarNode.prototype = Object.create( Node.prototype );
+VarNode.prototype.constructor = VarNode;
+VarNode.prototype.nodeType = "Var";
 
-export const temp = nodeProxy( VarNode );
+VarNode.prototype.getType = function ( builder ) {
 
-addNodeElement( 'temp', temp ); // @TODO: Will be removed in the future
-addNodeElement( 'toVar', ( ...params ) => temp( ...params ).append() );
+	return builder.getTypeByFormat( this.type );
 
-addNodeClass( 'VarNode', VarNode );
+};
+
+VarNode.prototype.generate = function ( builder, output ) {
+
+	var varying = builder.getVar( this.uuid, this.type );
+
+	if ( this.value && builder.isShader( 'vertex' ) ) {
+
+		builder.addNodeCode( varying.name + ' = ' + this.value.build( builder, this.getType( builder ) ) + ';' );
+
+	}
+
+	return builder.format( varying.name, this.getType( builder ), output );
+
+};
+
+VarNode.prototype.copy = function ( source ) {
+
+	Node.prototype.copy.call( this, source );
+
+	this.type = source.type;
+	this.value = source.value;
+
+	return this;
+
+};
+
+VarNode.prototype.toJSON = function ( meta ) {
+
+	var data = this.getJSONNode( meta );
+
+	if ( ! data ) {
+
+		data = this.createJSONNode( meta );
+
+		data.type = this.type;
+
+		if ( this.value ) data.value = this.value.toJSON( meta ).uuid;
+
+	}
+
+	return data;
+
+};
+
+export { VarNode };

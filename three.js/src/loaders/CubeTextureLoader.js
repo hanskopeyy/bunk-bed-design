@@ -1,20 +1,25 @@
+/**
+ * @author mrdoob / http://mrdoob.com/
+ */
+
 import { ImageLoader } from './ImageLoader.js';
 import { CubeTexture } from '../textures/CubeTexture.js';
 import { Loader } from './Loader.js';
-import { SRGBColorSpace } from '../constants.js';
 
-class CubeTextureLoader extends Loader {
 
-	constructor( manager ) {
+function CubeTextureLoader( manager ) {
 
-		super( manager );
+	Loader.call( this, manager );
 
-	}
+}
 
-	load( urls, onLoad, onProgress, onError ) {
+CubeTextureLoader.prototype = Object.assign( Object.create( Loader.prototype ), {
+
+	constructor: CubeTextureLoader,
+
+	load: function ( urls, onLoad, onProgress, onError ) {
 
 		const texture = new CubeTexture();
-		texture.colorSpace = SRGBColorSpace;
 
 		const loader = new ImageLoader( this.manager );
 		loader.setCrossOrigin( this.crossOrigin );
@@ -52,7 +57,7 @@ class CubeTextureLoader extends Loader {
 
 	}
 
-}
+} );
 
 
 export { CubeTextureLoader };

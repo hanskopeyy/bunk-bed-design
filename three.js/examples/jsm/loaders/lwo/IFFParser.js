@@ -1,4 +1,7 @@
 /**
+ * @author Lewy Blue / https://github.com/looeee
+ * @author Guilherme Avila / https://github/sciecode
+ *
  * === IFFParser ===
  * - Parses data from the IFF buffer.
  * - LWO3 files are in IFF format and can contain the following data types, referred to by shorthand codes
@@ -32,19 +35,22 @@
  *
  **/
 
-import { LWO2Parser } from './LWO2Parser.js';
-import { LWO3Parser } from './LWO3Parser.js';
+import { LoaderUtils } from "../../../../build/three.module.js";
+import { LWO2Parser } from "./LWO2Parser.js";
+import { LWO3Parser } from "./LWO3Parser.js";
 
-class IFFParser {
+function IFFParser( ) {
 
-	constructor() {
+	this.debugger = new Debugger();
+	// this.debugger.enable(); // un-comment to log IFF hierarchy.
 
-		this.debugger = new Debugger();
-		// this.debugger.enable(); // un-comment to log IFF hierarchy.
+}
 
-	}
+IFFParser.prototype = {
 
-	parse( buffer ) {
+	constructor: IFFParser,
+
+	parse: function ( buffer ) {
 
 		this.reader = new DataViewReader( buffer );
 
@@ -80,7 +86,7 @@ class IFFParser {
 
 		return this.tree;
 
-	}
+	},
 
 	parseTopForm() {
 
@@ -90,7 +96,7 @@ class IFFParser {
 
 		if ( topForm !== 'FORM' ) {
 
-			console.warn( 'LWOLoader: Top-level FORM missing.' );
+			console.warn( "LWOLoader: Top-level FORM missing." );
 			return;
 
 		}
@@ -118,7 +124,7 @@ class IFFParser {
 
 		return;
 
-	}
+	},
 
 
 	///
@@ -304,7 +310,7 @@ class IFFParser {
 		this.debugger.nodeID = type;
 		this.debugger.log();
 
-	}
+	},
 
 	setupForm( type, length ) {
 
@@ -329,13 +335,13 @@ class IFFParser {
 		}
 
 
-	}
+	},
 
 	skipForm( length ) {
 
 		this.reader.skip( length - 4 );
 
-	}
+	},
 
 	parseUnknownForm( type, length ) {
 
@@ -344,7 +350,7 @@ class IFFParser {
 		printBuffer( this.reader.dv.buffer, this.reader.offset, length - 4 );
 		this.reader.skip( length - 4 );
 
-	}
+	},
 
 	parseSurfaceForm( length ) {
 
@@ -368,7 +374,7 @@ class IFFParser {
 		this.currentForm = surface;
 		this.currentFormEnd = this.reader.offset + length;
 
-	}
+	},
 
 	parseSurfaceLwo2( length ) {
 
@@ -389,7 +395,7 @@ class IFFParser {
 		this.currentForm = surface;
 		this.currentFormEnd = this.reader.offset + length;
 
-	}
+	},
 
 	parseSubNode( length ) {
 
@@ -409,7 +415,7 @@ class IFFParser {
 		this.currentFormEnd = this.reader.offset + length;
 
 
-	}
+	},
 
 	// collect attributes from all nodes at the top level of a surface
 	parseConnections( length ) {
@@ -419,7 +425,7 @@ class IFFParser {
 
 		this.currentForm = this.currentSurface.connections;
 
-	}
+	},
 
 	// surface node attribute data, e.g. specular, roughness etc
 	parseEntryForm( length ) {
@@ -430,7 +436,7 @@ class IFFParser {
 
 		this.setupForm( name, length );
 
-	}
+	},
 
 	// parse values from material - doesn't match up to other LWO3 data types
 	// sub form of entry form
@@ -460,7 +466,7 @@ class IFFParser {
 
 		}
 
-	}
+	},
 
 	// holds various data about texture node image state
 	// Data other thanmipMapLevel unknown
@@ -470,7 +476,7 @@ class IFFParser {
 
 		this.currentForm.mipMapLevel = this.reader.getFloat32();
 
-	}
+	},
 
 	// LWO2 style image data node OR LWO3 textures defined at top level in editor (not as SURF node)
 	parseImageMap( length ) {
@@ -486,7 +492,7 @@ class IFFParser {
 
 		this.reader.skip( 10 ); // unknown, could be an issue if it contains a VX
 
-	}
+	},
 
 	parseTextureNodeAttribute( type ) {
 
@@ -524,14 +530,14 @@ class IFFParser {
 		this.reader.skip( 2 ); // unknown
 
 
-	}
+	},
 
 	// ENVL forms are currently ignored
 	parseEnvelope( length ) {
 
 		this.reader.skip( length - 4 ); // skipping  entirely for now
 
-	}
+	},
 
 	///
 	// CHUNK PARSING METHODS
@@ -568,13 +574,13 @@ class IFFParser {
 		this.tree.textures.push( texture );
 		this.currentForm = texture;
 
-	}
+	},
 
 	parseClipLwo2( length ) {
 
 		var texture = {
 			index: this.reader.getUint32(),
-			fileName: ''
+			fileName: ""
 		};
 
 		// seach STIL block
@@ -600,14 +606,14 @@ class IFFParser {
 		this.tree.textures.push( texture );
 		this.currentForm = texture;
 
-	}
+	},
 
 	parseImage() {
 
 		this.reader.skip( 8 ); // unknown
 		this.currentForm.fileName = this.reader.getString();
 
-	}
+	},
 
 	parseXVAL( type, length ) {
 
@@ -618,7 +624,7 @@ class IFFParser {
 
 		this.reader.setOffset( endOffset ); // set end offset directly to skip optional envelope
 
-	}
+	},
 
 	parseXVAL3( type, length ) {
 
@@ -633,7 +639,7 @@ class IFFParser {
 
 		this.reader.setOffset( endOffset );
 
-	}
+	},
 
 	// Tags associated with an object
 	// OTAG { type[ID4], tag-string[S0] }
@@ -645,7 +651,7 @@ class IFFParser {
 			tagString: this.reader.getString()
 		};
 
-	}
+	},
 
 	// Signals the start of a new layer. All the data chunks which follow will be included in this layer until another layer chunk is encountered.
 	// LAYR: number[U2], flags[U2], pivot[VEC12], name[S0], parent[U2]
@@ -666,7 +672,7 @@ class IFFParser {
 		// if we have not reached then end of the layer block, there must be a parent defined
 		this.currentLayer.parent = ( parsedLength < length ) ? this.reader.getUint16() : - 1; // omitted or -1 for no parent
 
-	}
+	},
 
 	// VEC12 * ( F4 + F4 + F4 ) array of x,y,z vectors
 	// Converting from left to right handed coordinate system:
@@ -681,7 +687,7 @@ class IFFParser {
 
 		}
 
-	}
+	},
 
 	// parse VMAP or VMAD
 	// Associates a set of floating-point vectors with a set of points.
@@ -742,7 +748,7 @@ class IFFParser {
 
 		}
 
-	}
+	},
 
 	parseUVMapping( name, finalOffset, discontinuous ) {
 
@@ -781,7 +787,7 @@ class IFFParser {
 
 		}
 
-	}
+	},
 
 	parseMorphTargets( name, finalOffset, type ) {
 
@@ -806,7 +812,7 @@ class IFFParser {
 			type: type,
 		};
 
-	}
+	},
 
 	// A list of polygons for the current layer.
 	// POLS { type[ID4], ( numvert+flags[U2], vert[VX] # numvert ) * }
@@ -845,7 +851,7 @@ class IFFParser {
 
 		this.currentLayer.geometry = geometryData;
 
-	}
+	},
 
 	// Lists the tag strings that can be associated with polygons by the PTAG chunk.
 	// TAGS { tag-string[S0] * }
@@ -853,7 +859,7 @@ class IFFParser {
 
 		this.tree.tags = this.reader.getStringArray( length );
 
-	}
+	},
 
 	// Associates tags of a given type with polygons in the most recent POLS chunk.
 	// PTAG { type[ID4], ( poly[VX], tag[U2] ) * }
@@ -868,7 +874,7 @@ class IFFParser {
 
 		}
 
-	}
+	},
 
 	parseMaterialIndices( finalOffset ) {
 
@@ -884,7 +890,7 @@ class IFFParser {
 
 		}
 
-	}
+	},
 
 	parseUnknownCHUNK( blockID, length ) {
 
@@ -899,25 +905,24 @@ class IFFParser {
 
 	}
 
+};
+
+function DataViewReader( buffer ) {
+
+	this.dv = new DataView( buffer );
+	this.offset = 0;
+
 }
 
+DataViewReader.prototype = {
 
-class DataViewReader {
+	constructor: DataViewReader,
 
-	constructor( buffer ) {
-
-		this.dv = new DataView( buffer );
-		this.offset = 0;
-		this._textDecoder = new TextDecoder();
-		this._bytes = new Uint8Array( buffer );
-
-	}
-
-	size() {
+	size: function () {
 
 		return this.dv.buffer.byteLength;
 
-	}
+	},
 
 	setOffset( offset ) {
 
@@ -931,54 +936,54 @@ class DataViewReader {
 
 		}
 
-	}
+	},
 
-	endOfFile() {
+	endOfFile: function () {
 
 		if ( this.offset >= this.size() ) return true;
 		return false;
 
-	}
+	},
 
-	skip( length ) {
+	skip: function ( length ) {
 
 		this.offset += length;
 
-	}
+	},
 
-	getUint8() {
+	getUint8: function () {
 
 		var value = this.dv.getUint8( this.offset );
 		this.offset += 1;
 		return value;
 
-	}
+	},
 
-	getUint16() {
+	getUint16: function () {
 
 		var value = this.dv.getUint16( this.offset );
 		this.offset += 2;
 		return value;
 
-	}
+	},
 
-	getInt32() {
+	getInt32: function () {
 
 		var value = this.dv.getInt32( this.offset, false );
 		this.offset += 4;
 		return value;
 
-	}
+	},
 
-	getUint32() {
+	getUint32: function () {
 
 		var value = this.dv.getUint32( this.offset, false );
 		this.offset += 4;
 		return value;
 
-	}
+	},
 
-	getUint64() {
+	getUint64: function () {
 
 		var low, high;
 
@@ -986,17 +991,17 @@ class DataViewReader {
 		low = this.getUint32();
 		return high * 0x100000000 + low;
 
-	}
+	},
 
-	getFloat32() {
+	getFloat32: function () {
 
 		var value = this.dv.getFloat32( this.offset, false );
 		this.offset += 4;
 		return value;
 
-	}
+	},
 
-	getFloat32Array( size ) {
+	getFloat32Array: function ( size ) {
 
 		var a = [];
 
@@ -1008,17 +1013,17 @@ class DataViewReader {
 
 		return a;
 
-	}
+	},
 
-	getFloat64() {
+	getFloat64: function () {
 
 		var value = this.dv.getFloat64( this.offset, this.littleEndian );
 		this.offset += 8;
 		return value;
 
-	}
+	},
 
-	getFloat64Array( size ) {
+	getFloat64Array: function ( size ) {
 
 		var a = [];
 
@@ -1030,7 +1035,7 @@ class DataViewReader {
 
 		return a;
 
-	}
+	},
 
 	// get variable-length index data type
 	// VX ::= index[U2] | (index + 0xFF000000)[U4]
@@ -1050,51 +1055,52 @@ class DataViewReader {
 
 		return firstByte * 256 + this.getUint8();
 
-	}
+	},
 
 	// An ID tag is a sequence of 4 bytes containing 7-bit ASCII values
 	getIDTag() {
 
 		return this.getString( 4 );
 
-	}
+	},
 
-	getString( size ) {
+	getString: function ( size ) {
 
 		if ( size === 0 ) return;
 
-		const start = this.offset;
-
-		let result;
-		let length;
+		// note: safari 9 doesn't support Uint8Array.indexOf; create intermediate array instead
+		var a = [];
 
 		if ( size ) {
 
-			length = size;
-			result = this._textDecoder.decode( new Uint8Array( this.dv.buffer, start, size ) );
+			for ( var i = 0; i < size; i ++ ) {
+
+				a[ i ] = this.getUint8();
+
+			}
 
 		} else {
 
-			// use 1:1 mapping of buffer to avoid redundant new array creation.
-			length = this._bytes.indexOf( 0, start ) - start;
+			var currentChar;
+			var len = 0;
 
-			result = this._textDecoder.decode( new Uint8Array( this.dv.buffer, start, length ) );
+			while ( currentChar !== 0 ) {
 
-			// account for null byte in length
-			length ++;
+				currentChar = this.getUint8();
+				if ( currentChar !== 0 ) a.push( currentChar );
+				len ++;
 
-			// if string with terminating nullbyte is uneven, extra nullbyte is added, skip that too
-			length += length % 2;
+			}
+
+			if ( ! isEven( len + 1 ) ) this.getUint8(); // if string with terminating nullbyte is uneven, extra nullbyte is added
 
 		}
 
-		this.skip( length );
+		return LoaderUtils.decodeText( new Uint8Array( a ) );
 
-		return result;
+	},
 
-	}
-
-	getStringArray( size ) {
+	getStringArray: function ( size ) {
 
 		var a = this.getString( size );
 		a = a.split( '\0' );
@@ -1103,28 +1109,29 @@ class DataViewReader {
 
 	}
 
-}
-
+};
 
 // ************** DEBUGGER  **************
 
-class Debugger {
+function Debugger( ) {
 
-	constructor() {
+	this.active = false;
+	this.depth = 0;
+	this.formList = [];
 
-		this.active = false;
-		this.depth = 0;
-		this.formList = [];
+}
 
-	}
+Debugger.prototype = {
 
-	enable() {
+	constructor: Debugger,
+
+	enable: function () {
 
 		this.active = true;
 
-	}
+	},
 
-	log() {
+	log: function () {
 
 		if ( ! this.active ) return;
 
@@ -1133,27 +1140,27 @@ class Debugger {
 		switch ( this.node ) {
 
 			case 0:
-				nodeType = 'FORM';
+				nodeType = "FORM";
 				break;
 
 			case 1:
-				nodeType = 'CHK';
+				nodeType = "CHK";
 				break;
 
 			case 2:
-				nodeType = 'S-CHK';
+				nodeType = "S-CHK";
 				break;
 
 		}
 
 		console.log(
-			'| '.repeat( this.depth ) +
+			"| ".repeat( this.depth ) +
 			nodeType,
 			this.nodeID,
 			`( ${this.offset} ) -> ( ${this.dataOffset + this.length} )`,
-			( ( this.node == 0 ) ? ' {' : '' ),
-			( ( this.skipped ) ? 'SKIPPED' : '' ),
-			( ( this.node == 0 && this.skipped ) ? '}' : '' )
+			( ( this.node == 0 ) ? " {" : "" ),
+			( ( this.skipped ) ? "SKIPPED" : "" ),
+			( ( this.node == 0 && this.skipped ) ? "}" : "" )
 		);
 
 		if ( this.node == 0 && ! this.skipped ) {
@@ -1165,9 +1172,9 @@ class Debugger {
 
 		this.skipped = false;
 
-	}
+	},
 
-	closeForms() {
+	closeForms: function () {
 
 		if ( ! this.active ) return;
 
@@ -1176,7 +1183,7 @@ class Debugger {
 			if ( this.offset >= this.formList[ i ] ) {
 
 				this.depth -= 1;
-				console.log( '| '.repeat( this.depth ) + '}' );
+				console.log( "| ".repeat( this.depth ) + "}" );
 				this.formList.splice( - 1, 1 );
 
 			}
@@ -1185,7 +1192,7 @@ class Debugger {
 
 	}
 
-}
+};
 
 // ************** UTILITY FUNCTIONS **************
 
@@ -1207,7 +1214,7 @@ function stringOffset( string ) {
 // printBuffer( this.reader.dv.buffer, this.reader.offset, length );
 function printBuffer( buffer, from, to ) {
 
-	console.log( new TextDecoder().decode( new Uint8Array( buffer, from, to ) ) );
+	console.log( LoaderUtils.decodeText( new Uint8Array( buffer, from, to ) ) );
 
 }
 

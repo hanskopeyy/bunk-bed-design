@@ -6,45 +6,50 @@ import { Vector3 } from '../math/Vector3.js';
 import { PointsMaterial } from '../materials/PointsMaterial.js';
 import { BufferGeometry } from '../core/BufferGeometry.js';
 
-const _inverseMatrix = /*@__PURE__*/ new Matrix4();
-const _ray = /*@__PURE__*/ new Ray();
-const _sphere = /*@__PURE__*/ new Sphere();
-const _position = /*@__PURE__*/ new Vector3();
+/**
+ * @author alteredq / http://alteredqualia.com/
+ */
 
-class Points extends Object3D {
+const _inverseMatrix = new Matrix4();
+const _ray = new Ray();
+const _sphere = new Sphere();
+const _position = new Vector3();
 
-	constructor( geometry = new BufferGeometry(), material = new PointsMaterial() ) {
+function Points( geometry, material ) {
 
-		super();
+	Object3D.call( this );
 
-		this.isPoints = true;
+	this.type = 'Points';
 
-		this.type = 'Points';
+	this.geometry = geometry !== undefined ? geometry : new BufferGeometry();
+	this.material = material !== undefined ? material : new PointsMaterial();
 
-		this.geometry = geometry;
-		this.material = material;
+	this.updateMorphTargets();
 
-		this.updateMorphTargets();
+}
 
-	}
+Points.prototype = Object.assign( Object.create( Object3D.prototype ), {
 
-	copy( source, recursive ) {
+	constructor: Points,
 
-		super.copy( source, recursive );
+	isPoints: true,
 
-		this.material = Array.isArray( source.material ) ? source.material.slice() : source.material;
+	copy: function ( source ) {
+
+		Object3D.prototype.copy.call( this, source );
+
+		this.material = source.material;
 		this.geometry = source.geometry;
 
 		return this;
 
-	}
+	},
 
-	raycast( raycaster, intersects ) {
+	raycast: function ( raycaster, intersects ) {
 
 		const geometry = this.geometry;
 		const matrixWorld = this.matrixWorld;
 		const threshold = raycaster.params.Points.threshold;
-		const drawRange = geometry.drawRange;
 
 		// Checking boundingSphere distance to ray
 
@@ -58,80 +63,104 @@ class Points extends Object3D {
 
 		//
 
-		_inverseMatrix.copy( matrixWorld ).invert();
+		_inverseMatrix.getInverse( matrixWorld );
 		_ray.copy( raycaster.ray ).applyMatrix4( _inverseMatrix );
 
 		const localThreshold = threshold / ( ( this.scale.x + this.scale.y + this.scale.z ) / 3 );
 		const localThresholdSq = localThreshold * localThreshold;
 
-		const index = geometry.index;
-		const attributes = geometry.attributes;
-		const positionAttribute = attributes.position;
+		if ( geometry.isBufferGeometry ) {
 
-		if ( index !== null ) {
+			const index = geometry.index;
+			const attributes = geometry.attributes;
+			const positions = attributes.position.array;
 
-			const start = Math.max( 0, drawRange.start );
-			const end = Math.min( index.count, ( drawRange.start + drawRange.count ) );
+			if ( index !== null ) {
 
-			for ( let i = start, il = end; i < il; i ++ ) {
+				const indices = index.array;
 
-				const a = index.getX( i );
+				for ( let i = 0, il = indices.length; i < il; i ++ ) {
 
-				_position.fromBufferAttribute( positionAttribute, a );
+					const a = indices[ i ];
 
-				testPoint( _position, a, localThresholdSq, matrixWorld, raycaster, intersects, this );
+					_position.fromArray( positions, a * 3 );
 
-			}
+					testPoint( _position, a, localThresholdSq, matrixWorld, raycaster, intersects, this );
 
-		} else {
+				}
 
-			const start = Math.max( 0, drawRange.start );
-			const end = Math.min( positionAttribute.count, ( drawRange.start + drawRange.count ) );
+			} else {
 
-			for ( let i = start, l = end; i < l; i ++ ) {
+				for ( let i = 0, l = positions.length / 3; i < l; i ++ ) {
 
-				_position.fromBufferAttribute( positionAttribute, i );
+					_position.fromArray( positions, i * 3 );
 
-				testPoint( _position, i, localThresholdSq, matrixWorld, raycaster, intersects, this );
-
-			}
-
-		}
-
-	}
-
-	updateMorphTargets() {
-
-		const geometry = this.geometry;
-
-		const morphAttributes = geometry.morphAttributes;
-		const keys = Object.keys( morphAttributes );
-
-		if ( keys.length > 0 ) {
-
-			const morphAttribute = morphAttributes[ keys[ 0 ] ];
-
-			if ( morphAttribute !== undefined ) {
-
-				this.morphTargetInfluences = [];
-				this.morphTargetDictionary = {};
-
-				for ( let m = 0, ml = morphAttribute.length; m < ml; m ++ ) {
-
-					const name = morphAttribute[ m ].name || String( m );
-
-					this.morphTargetInfluences.push( 0 );
-					this.morphTargetDictionary[ name ] = m;
+					testPoint( _position, i, localThresholdSq, matrixWorld, raycaster, intersects, this );
 
 				}
 
 			}
 
+		} else {
+
+			const vertices = geometry.vertices;
+
+			for ( let i = 0, l = vertices.length; i < l; i ++ ) {
+
+				testPoint( vertices[ i ], i, localThresholdSq, matrixWorld, raycaster, intersects, this );
+
+			}
+
+		}
+
+	},
+
+	updateMorphTargets: function () {
+
+		const geometry = this.geometry;
+
+		if ( geometry.isBufferGeometry ) {
+
+			const morphAttributes = geometry.morphAttributes;
+			const keys = Object.keys( morphAttributes );
+
+			if ( keys.length > 0 ) {
+
+				const morphAttribute = morphAttributes[ keys[ 0 ] ];
+
+				if ( morphAttribute !== undefined ) {
+
+					this.morphTargetInfluences = [];
+					this.morphTargetDictionary = {};
+
+					for ( let m = 0, ml = morphAttribute.length; m < ml; m ++ ) {
+
+						const name = morphAttribute[ m ].name || String( m );
+
+						this.morphTargetInfluences.push( 0 );
+						this.morphTargetDictionary[ name ] = m;
+
+					}
+
+				}
+
+			}
+
+		} else {
+
+			const morphTargets = geometry.morphTargets;
+
+			if ( morphTargets !== undefined && morphTargets.length > 0 ) {
+
+				console.error( 'THREE.Points.updateMorphTargets() does not support THREE.Geometry. Use THREE.BufferGeometry instead.' );
+
+			}
+
 		}
 
 	}
 
-}
+} );
 
 function testPoint( point, index, localThresholdSq, matrixWorld, raycaster, intersects, object ) {
 

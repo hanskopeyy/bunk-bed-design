@@ -1,5 +1,6 @@
-import { ZeroCurvatureEnding, WrapAroundEnding, ZeroSlopeEnding } from '../../constants.js';
+import { ZeroCurvatureEnding } from '../../constants.js';
 import { Interpolant } from '../Interpolant.js';
+import { WrapAroundEnding, ZeroSlopeEnding } from '../../constants.js';
 
 /**
  * Fast and simple cubic spline interpolant.
@@ -7,32 +8,36 @@ import { Interpolant } from '../Interpolant.js';
  * It was derived from a Hermitian construction setting the first derivative
  * at each sample position to the linear slope between neighboring positions
  * over their parameter interval.
+ *
+ * @author tschw
  */
 
-class CubicInterpolant extends Interpolant {
+function CubicInterpolant( parameterPositions, sampleValues, sampleSize, resultBuffer ) {
 
-	constructor( parameterPositions, sampleValues, sampleSize, resultBuffer ) {
+	Interpolant.call( this, parameterPositions, sampleValues, sampleSize, resultBuffer );
 
-		super( parameterPositions, sampleValues, sampleSize, resultBuffer );
+	this._weightPrev = - 0;
+	this._offsetPrev = - 0;
+	this._weightNext = - 0;
+	this._offsetNext = - 0;
 
-		this._weightPrev = - 0;
-		this._offsetPrev = - 0;
-		this._weightNext = - 0;
-		this._offsetNext = - 0;
+}
 
-		this.DefaultSettings_ = {
+CubicInterpolant.prototype = Object.assign( Object.create( Interpolant.prototype ), {
 
-			endingStart: ZeroCurvatureEnding,
-			endingEnd: ZeroCurvatureEnding
+	constructor: CubicInterpolant,
 
-		};
+	DefaultSettings_: {
 
-	}
+		endingStart: ZeroCurvatureEnding,
+		endingEnd: ZeroCurvatureEnding
 
-	intervalChanged_( i1, t0, t1 ) {
+	},
 
-		const pp = this.parameterPositions;
-		let iPrev = i1 - 2,
+	intervalChanged_: function ( i1, t0, t1 ) {
+
+		let pp = this.parameterPositions,
+			iPrev = i1 - 2,
 			iNext = i1 + 1,
 
 			tPrev = pp[ iPrev ],
@@ -106,9 +111,9 @@ class CubicInterpolant extends Interpolant {
 		this._offsetPrev = iPrev * stride;
 		this._offsetNext = iNext * stride;
 
-	}
+	},
 
-	interpolate_( i1, t0, t, t1 ) {
+	interpolate_: function ( i1, t0, t, t1 ) {
 
 		const result = this.resultBuffer,
 			values = this.sampleValues,
@@ -145,6 +150,7 @@ class CubicInterpolant extends Interpolant {
 
 	}
 
-}
+} );
+
 
 export { CubicInterpolant };

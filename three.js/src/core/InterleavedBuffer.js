@@ -1,63 +1,50 @@
-import * as MathUtils from '../math/MathUtils.js';
+import { MathUtils } from '../math/MathUtils.js';
 import { StaticDrawUsage } from '../constants.js';
-import { warnOnce } from '../utils.js';
 
-class InterleavedBuffer {
+/**
+ * @author benaadams / https://twitter.com/ben_a_adams
+ */
 
-	constructor( array, stride ) {
+function InterleavedBuffer( array, stride ) {
 
-		this.isInterleavedBuffer = true;
+	this.array = array;
+	this.stride = stride;
+	this.count = array !== undefined ? array.length / stride : 0;
 
-		this.array = array;
-		this.stride = stride;
-		this.count = array !== undefined ? array.length / stride : 0;
+	this.usage = StaticDrawUsage;
+	this.updateRange = { offset: 0, count: - 1 };
 
-		this.usage = StaticDrawUsage;
-		this._updateRange = { offset: 0, count: - 1 };
-		this.updateRanges = [];
+	this.version = 0;
 
-		this.version = 0;
+	this.uuid = MathUtils.generateUUID();
 
-		this.uuid = MathUtils.generateUUID();
+}
 
-	}
+Object.defineProperty( InterleavedBuffer.prototype, 'needsUpdate', {
 
-	onUploadCallback() {}
-
-	set needsUpdate( value ) {
+	set: function ( value ) {
 
 		if ( value === true ) this.version ++;
 
 	}
 
-	get updateRange() {
+} );
 
-		warnOnce( 'THREE.InterleavedBuffer: updateRange() is deprecated and will be removed in r169. Use addUpdateRange() instead.' ); // @deprecated, r159
-		return this._updateRange;
+Object.assign( InterleavedBuffer.prototype, {
 
-	}
+	isInterleavedBuffer: true,
 
-	setUsage( value ) {
+	onUploadCallback: function () {},
+
+	setUsage: function ( value ) {
 
 		this.usage = value;
 
 		return this;
 
-	}
+	},
 
-	addUpdateRange( start, count ) {
-
-		this.updateRanges.push( { start, count } );
-
-	}
-
-	clearUpdateRanges() {
-
-		this.updateRanges.length = 0;
-
-	}
-
-	copy( source ) {
+	copy: function ( source ) {
 
 		this.array = new source.array.constructor( source.array );
 		this.count = source.count;
@@ -66,9 +53,9 @@ class InterleavedBuffer {
 
 		return this;
 
-	}
+	},
 
-	copyAt( index1, attribute, index2 ) {
+	copyAt: function ( index1, attribute, index2 ) {
 
 		index1 *= this.stride;
 		index2 *= attribute.stride;
@@ -81,17 +68,19 @@ class InterleavedBuffer {
 
 		return this;
 
-	}
+	},
 
-	set( value, offset = 0 ) {
+	set: function ( value, offset ) {
+
+		if ( offset === undefined ) offset = 0;
 
 		this.array.set( value, offset );
 
 		return this;
 
-	}
+	},
 
-	clone( data ) {
+	clone: function ( data ) {
 
 		if ( data.arrayBuffers === undefined ) {
 
@@ -113,22 +102,22 @@ class InterleavedBuffer {
 
 		const array = new this.array.constructor( data.arrayBuffers[ this.array.buffer._uuid ] );
 
-		const ib = new this.constructor( array, this.stride );
+		const ib = new InterleavedBuffer( array, this.stride );
 		ib.setUsage( this.usage );
 
 		return ib;
 
-	}
+	},
 
-	onUpload( callback ) {
+	onUpload: function ( callback ) {
 
 		this.onUploadCallback = callback;
 
 		return this;
 
-	}
+	},
 
-	toJSON( data ) {
+	toJSON: function ( data ) {
 
 		if ( data.arrayBuffers === undefined ) {
 
@@ -146,7 +135,7 @@ class InterleavedBuffer {
 
 		if ( data.arrayBuffers[ this.array.buffer._uuid ] === undefined ) {
 
-			data.arrayBuffers[ this.array.buffer._uuid ] = Array.from( new Uint32Array( this.array.buffer ) );
+			data.arrayBuffers[ this.array.buffer._uuid ] = Array.prototype.slice.call( new Uint32Array( this.array.buffer ) );
 
 		}
 
@@ -161,6 +150,6 @@ class InterleavedBuffer {
 
 	}
 
-}
+} );
 
 export { InterleavedBuffer };

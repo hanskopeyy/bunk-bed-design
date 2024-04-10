@@ -1,43 +1,46 @@
 import { Camera } from './Camera.js';
-import * as MathUtils from '../math/MathUtils.js';
-import { Vector2 } from '../math/Vector2.js';
-import { Vector3 } from '../math/Vector3.js';
+import { Object3D } from '../core/Object3D.js';
+import { MathUtils } from '../math/MathUtils.js';
 
-const _v3 = /*@__PURE__*/ new Vector3();
-const _minTarget = /*@__PURE__*/ new Vector2();
-const _maxTarget = /*@__PURE__*/ new Vector2();
+/**
+ * @author mrdoob / http://mrdoob.com/
+ * @author greggman / http://games.greggman.com/
+ * @author zz85 / http://www.lab4games.net/zz85/blog
+ * @author tschw
+ */
 
+function PerspectiveCamera( fov, aspect, near, far ) {
 
-class PerspectiveCamera extends Camera {
+	Camera.call( this );
 
-	constructor( fov = 50, aspect = 1, near = 0.1, far = 2000 ) {
+	this.type = 'PerspectiveCamera';
 
-		super();
+	this.fov = fov !== undefined ? fov : 50;
+	this.zoom = 1;
 
-		this.isPerspectiveCamera = true;
+	this.near = near !== undefined ? near : 0.1;
+	this.far = far !== undefined ? far : 2000;
+	this.focus = 10;
 
-		this.type = 'PerspectiveCamera';
+	this.aspect = aspect !== undefined ? aspect : 1;
+	this.view = null;
 
-		this.fov = fov;
-		this.zoom = 1;
+	this.filmGauge = 35;	// width of the film (default in millimeters)
+	this.filmOffset = 0;	// horizontal film offset (same unit as gauge)
 
-		this.near = near;
-		this.far = far;
-		this.focus = 10;
+	this.updateProjectionMatrix();
 
-		this.aspect = aspect;
-		this.view = null;
+}
 
-		this.filmGauge = 35;	// width of the film (default in millimeters)
-		this.filmOffset = 0;	// horizontal film offset (same unit as gauge)
+PerspectiveCamera.prototype = Object.assign( Object.create( Camera.prototype ), {
 
-		this.updateProjectionMatrix();
+	constructor: PerspectiveCamera,
 
-	}
+	isPerspectiveCamera: true,
 
-	copy( source, recursive ) {
+	copy: function ( source, recursive ) {
 
-		super.copy( source, recursive );
+		Camera.prototype.copy.call( this, source, recursive );
 
 		this.fov = source.fov;
 		this.zoom = source.zoom;
@@ -54,7 +57,7 @@ class PerspectiveCamera extends Camera {
 
 		return this;
 
-	}
+	},
 
 	/**
 	 * Sets the FOV by focal length in respect to the current .filmGauge.
@@ -64,75 +67,47 @@ class PerspectiveCamera extends Camera {
 	 *
 	 * Values for focal length and film gauge must have the same unit.
 	 */
-	setFocalLength( focalLength ) {
+	setFocalLength: function ( focalLength ) {
 
-		/** see {@link http://www.bobatkins.com/photography/technical/field_of_view.html} */
+		// see http://www.bobatkins.com/photography/technical/field_of_view.html
 		const vExtentSlope = 0.5 * this.getFilmHeight() / focalLength;
 
 		this.fov = MathUtils.RAD2DEG * 2 * Math.atan( vExtentSlope );
 		this.updateProjectionMatrix();
 
-	}
+	},
 
 	/**
 	 * Calculates the focal length from the current .fov and .filmGauge.
 	 */
-	getFocalLength() {
+	getFocalLength: function () {
 
 		const vExtentSlope = Math.tan( MathUtils.DEG2RAD * 0.5 * this.fov );
 
 		return 0.5 * this.getFilmHeight() / vExtentSlope;
 
-	}
+	},
 
-	getEffectiveFOV() {
+	getEffectiveFOV: function () {
 
 		return MathUtils.RAD2DEG * 2 * Math.atan(
 			Math.tan( MathUtils.DEG2RAD * 0.5 * this.fov ) / this.zoom );
 
-	}
+	},
 
-	getFilmWidth() {
+	getFilmWidth: function () {
 
 		// film not completely covered in portrait format (aspect < 1)
 		return this.filmGauge * Math.min( this.aspect, 1 );
 
-	}
+	},
 
-	getFilmHeight() {
+	getFilmHeight: function () {
 
 		// film not completely covered in landscape format (aspect > 1)
 		return this.filmGauge / Math.max( this.aspect, 1 );
 
-	}
-
-	/**
-	 * Computes the 2D bounds of the camera's viewable rectangle at a given distance along the viewing direction.
-	 * Sets minTarget and maxTarget to the coordinates of the lower-left and upper-right corners of the view rectangle.
-	 */
-	getViewBounds( distance, minTarget, maxTarget ) {
-
-		_v3.set( - 1, - 1, 0.5 ).applyMatrix4( this.projectionMatrixInverse );
-
-		minTarget.set( _v3.x, _v3.y ).multiplyScalar( - distance / _v3.z );
-
-		_v3.set( 1, 1, 0.5 ).applyMatrix4( this.projectionMatrixInverse );
-
-		maxTarget.set( _v3.x, _v3.y ).multiplyScalar( - distance / _v3.z );
-
-	}
-
-	/**
-	 * Computes the width and height of the camera's viewable rectangle at a given distance along the viewing direction.
-	 * Copies the result into the target Vector2, where x is width and y is height.
-	 */
-	getViewSize( distance, target ) {
-
-		this.getViewBounds( distance, _minTarget, _maxTarget );
-
-		return target.subVectors( _maxTarget, _minTarget );
-
-	}
+	},
 
 	/**
 	 * Sets an offset in a larger frustum. This is useful for multi-window or
@@ -169,7 +144,7 @@ class PerspectiveCamera extends Camera {
 	 *
 	 *   Note there is no reason monitors have to be the same size or in a grid.
 	 */
-	setViewOffset( fullWidth, fullHeight, x, y, width, height ) {
+	setViewOffset: function ( fullWidth, fullHeight, x, y, width, height ) {
 
 		this.aspect = fullWidth / fullHeight;
 
@@ -197,9 +172,9 @@ class PerspectiveCamera extends Camera {
 
 		this.updateProjectionMatrix();
 
-	}
+	},
 
-	clearViewOffset() {
+	clearViewOffset: function () {
 
 		if ( this.view !== null ) {
 
@@ -209,16 +184,16 @@ class PerspectiveCamera extends Camera {
 
 		this.updateProjectionMatrix();
 
-	}
+	},
 
-	updateProjectionMatrix() {
+	updateProjectionMatrix: function () {
 
-		const near = this.near;
-		let top = near * Math.tan( MathUtils.DEG2RAD * 0.5 * this.fov ) / this.zoom;
-		let height = 2 * top;
-		let width = this.aspect * height;
-		let left = - 0.5 * width;
-		const view = this.view;
+		let near = this.near,
+			top = near * Math.tan( MathUtils.DEG2RAD * 0.5 * this.fov ) / this.zoom,
+			height = 2 * top,
+			width = this.aspect * height,
+			left = - 0.5 * width,
+			view = this.view;
 
 		if ( this.view !== null && this.view.enabled ) {
 
@@ -235,15 +210,15 @@ class PerspectiveCamera extends Camera {
 		const skew = this.filmOffset;
 		if ( skew !== 0 ) left += near * skew / this.getFilmWidth();
 
-		this.projectionMatrix.makePerspective( left, left + width, top, top - height, near, this.far, this.coordinateSystem );
+		this.projectionMatrix.makePerspective( left, left + width, top, top - height, near, this.far );
 
-		this.projectionMatrixInverse.copy( this.projectionMatrix ).invert();
+		this.projectionMatrixInverse.getInverse( this.projectionMatrix );
 
-	}
+	},
 
-	toJSON( meta ) {
+	toJSON: function ( meta ) {
 
-		const data = super.toJSON( meta );
+		const data = Object3D.prototype.toJSON.call( this, meta );
 
 		data.object.fov = this.fov;
 		data.object.zoom = this.zoom;
@@ -263,6 +238,7 @@ class PerspectiveCamera extends Camera {
 
 	}
 
-}
+} );
+
 
 export { PerspectiveCamera };

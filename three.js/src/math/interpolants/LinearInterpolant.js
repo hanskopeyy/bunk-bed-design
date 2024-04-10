@@ -1,14 +1,20 @@
 import { Interpolant } from '../Interpolant.js';
 
-class LinearInterpolant extends Interpolant {
+/**
+ * @author tschw
+ */
 
-	constructor( parameterPositions, sampleValues, sampleSize, resultBuffer ) {
+function LinearInterpolant( parameterPositions, sampleValues, sampleSize, resultBuffer ) {
 
-		super( parameterPositions, sampleValues, sampleSize, resultBuffer );
+	Interpolant.call( this, parameterPositions, sampleValues, sampleSize, resultBuffer );
 
-	}
+}
 
-	interpolate_( i1, t0, t, t1 ) {
+LinearInterpolant.prototype = Object.assign( Object.create( Interpolant.prototype ), {
+
+	constructor: LinearInterpolant,
+
+	interpolate_: function ( i1, t0, t, t1 ) {
 
 		const result = this.resultBuffer,
 			values = this.sampleValues,
@@ -32,7 +38,7 @@ class LinearInterpolant extends Interpolant {
 
 	}
 
-}
+} );
 
 
 export { LinearInterpolant };
