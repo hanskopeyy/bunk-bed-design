@@ -64,7 +64,7 @@ let createLine = (properties, color = 0xFFFFFF, isLine = true) => {
 }
 
 let createText = (scene, text, properties, color = 0xFFFFFF) => {
-    FONT_LOADER.load('./node_modules/three/examples/fonts/helvetiker_regular.typeface.json', (typefont) => {
+    FONT_LOADER.load('./three.js/examples/fonts/helvetiker_regular.typeface.json', (typefont) => {
         let geometry = new THREE.TextGeometry(text, {
             font: typefont,
             depth: properties.height,
