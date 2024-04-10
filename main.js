@@ -1,7 +1,7 @@
 import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls.js';
-import { FontLoader } from 'https://unpkg.com/three@0.126.1/examples/jsm/loaders/FontLoader.js';
-import { TextGeometry } from 'https://unpkg.com/three@0.126.1/examples/jsm/geometries/TextGeometry.js';
+import { FontLoader } from 'https://unpkg.com/three@0.138.3/examples/jsm/loaders/FontLoader.js';
+import { TextGeometry } from 'https://unpkg.com/three@0.138.3/examples/jsm/geometries/TextGeometry.js';
 import { GLTFLoader } from 'https://unpkg.com/three@0.126.1/examples/jsm/loaders/GLTFLoader.js'; 
 
 // --------------------- Variables ------------------
