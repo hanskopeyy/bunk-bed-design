@@ -78,7 +78,6 @@ let createText = (scene, text, properties, color = 0xFFFFFF) => {
         mesh.position.set(properties.x, properties.y, properties.z);
         mesh.rotation.set(properties.rotateX, properties.rotateY, properties.rotateZ);
 
-        scene.add(mesh);
         SIZE_GROUP.push(mesh);
     })
 };
@@ -139,20 +138,20 @@ let init = () => {
     
     // Main Bed Frame
     OBJECT_GROUP.push(createWoodCube({
-        width: 16, height: 30,length: 3,
-        x: 0, y: 1, z: 0,
+        width: 16, height: 30,length: 1.8,
+        x: 0, y: 0.4, z: 0,
         rotateX: Math.PI/2, rotateY: 0, rotateZ: 0
     }), createWoodCube({
-        width: 16, height: 30, length: 3,
-        x: 0, y: 19, z: 0,
+        width: 16, height: 30, length: 1.8,
+        x: 0, y: 17.2, z: 0,
         rotateX: Math.PI/2, rotateY: 0, rotateZ: 0
     }), createWoodCube({
-        width: 16, height: 26, length: 3,
-        x: 0, y: 12.5, z: -16.5,
+        width: 16, height: 25, length: 1.8,
+        x: 0, y: 12, z: -15.9,
         rotateX: 0, rotateY: 0, rotateZ: 0
     }), createWoodCube({
-        width: 16, height: 23, length: 3,
-        x: 0, y: 11, z: 16.5,
+        width: 16, height: 20, length: 1.8,
+        x: 0, y: 9.5, z: 15.9,
         rotateX: 0, rotateY: 0, rotateZ: 0
     }));
 
@@ -165,245 +164,235 @@ let init = () => {
         width: 16, height: 0.25, length: 0.5,
         x: 0, y: -0.125, z: 25,
         rotateX: 0, rotateY: 0, rotateZ: 0
-    }), createText(SCENE, "23 cm", {
+    }), createText(SCENE, "20 cm", {
         height: 0.25, size: 2,
-        x: 13.25, y: 12.5, z: 18,
+        x: 13.25, y: 9.5, z: 15.9,
         rotateX: 0, rotateY: 0, rotateZ: 0
     }), createLine ({
-        width: 23, height: 0.25, length: 0.5,
-        x: 8.75, y: 11, z: 18,
+        width: 20, height: 0.25, length: 0.5,
+        x: 8.75, y: 9.5, z: 15.9,
         rotateX: 0, rotateY: Math.PI/2, rotateZ: Math.PI/2
-    }), createText(SCENE, "26 cm", {
+    }), createText(SCENE, "25 cm", {
         height: 0.25, size: 2,
-        x: -13.75, y: 14, z: -16.5,
+        x: -13.9, y: 12, z: -15.9,
         rotateX: 0, rotateY: 0, rotateZ: 0
     }), createLine ({
-        width: 26, height: 0.25, length: 0.5,
-        x: -8.625, y: 12.5, z: -16.5,
+        width: 25, height: 0.25, length: 0.5,
+        x: -9, y: 12, z: -15.9,
         rotateX: 0, rotateY: Math.PI/2, rotateZ: Math.PI/2
-    }), createText(SCENE, " 3 cm", {
-        height: 0.25, size: 2,
-        x: -8.125, y: 14, z: 16.5,
+    }), createText(SCENE, " 1.8 cm", {
+        height: 0.25, size: 1,
+        x: -8.225, y: 14, z: 15.9,
         rotateX: 0, rotateY: -Math.PI/2, rotateZ: Math.PI/2
     }), createLine ({
-        width: 3, height: 0.25, length: 0.5,
-        x: -8.125, y: 10, z: 16.5,
+        width: 1.8, height: 0.25, length: 0.5,
+        x: -8.225, y: 10, z: 15.9,
         rotateX: Math.PI/2, rotateY: 0, rotateZ: Math.PI/2
-    }), createText(SCENE, " 30 cm", {
+    }, 0xFFFFFF, false), createText(SCENE, " 30 cm", {
         height: 0.25, size: 2,
-        x: -5.125, y: 20.125, z: 0,
+        x: -5.225, y: 1.425, z: 0,
         rotateX: -Math.PI/2, rotateY: 0, rotateZ: -Math.PI/2
     }), createLine ({
         width: 30, height: 0.25, length: 0.5,
-        x: -7.125, y: 20.125, z: 0,
-        rotateX: Math.PI/2, rotateY: Math.PI/2, rotateZ: Math.PI/2
-    }), createText(SCENE, " 30 cm", {
-        height: 0.25, size: 2,
-        x: -5.125, y: 2.625, z: 0,
-        rotateX: -Math.PI/2, rotateY: 0, rotateZ: -Math.PI/2
-    }), createLine ({
-        width: 30, height: 0.25, length: 0.5,
-        x: -7.125, y: 2.625, z: 0,
+        x: -7.225, y: 1.425, z: 0,
         rotateX: Math.PI/2, rotateY: Math.PI/2, rotateZ: Math.PI/2
     }), createText(SCENE, "15 cm", {
         height: 0.25, size: 2,
-        x: -8.125, y: 10, z: -8.5,
+        x: -8.225, y: 8.8, z: -8.5,
         rotateX: 0, rotateY: -Math.PI/2, rotateZ: 0
     }, 0xFF3030), createLine ({
         width: 15, height: 0.25, length: 0.5,
-        x: -8.125, y: 10, z: -13.25,
+        x: -8.225, y: 8.8, z: -13.25,
         rotateX: 0, rotateY: 0, rotateZ: Math.PI/2
-    }, 0xFF3030), createText(SCENE, "3 cm", {
-        height: 0.25, size: 2,
-        x: -8.125, y: 19, z: -8.5,
+    }, 0xFF3030), createText(SCENE, "1.8 cm", {
+        height: 0.25, size: 1,
+        x: -8.225, y: 17.2, z: -10.5,
         rotateX: 0, rotateY: -Math.PI/2, rotateZ: 0
     }), createLine ({
-        width: 3, height: 0.25, length: 0.5,
-        x: -8.125, y: 19, z: -13.25,
+        width: 1.8, height: 0.25, length: 0.5,
+        x: -8.225, y: 17.2, z: -13.25,
         rotateX: 0, rotateY: 0, rotateZ: Math.PI/2
-    }), createText(SCENE, "3 cm", {
-        height: 0.25, size: 2,
-        x: -8.125, y: 1, z: -8.5,
+    }, 0xFFFFFF, false), createText(SCENE, "1.8 cm", {
+        height: 0.25, size: 1,
+        x: -8.225, y: 0.4, z: -10.5,
         rotateX: 0, rotateY: -Math.PI/2, rotateZ: 0
     }), createLine ({
-        width: 3, height: 0.25, length: 0.5,
-        x: -8.125, y: 1, z: -13.25,
+        width: 1.8, height: 0.25, length: 0.5,
+        x: -8.225, y: 0.4, z: -13.25,
         rotateX: 0, rotateY: 0, rotateZ: Math.PI/2
-    }), createText(SCENE, "5 cm", {
+    }, 0xFFFFFF, false), createText(SCENE, "6.4 cm", {
         height: 0.25, size: 2,
-        x: -8.125, y: 23, z: -8.5,
+        x: -8.225, y: 21.3, z: -8,
         rotateX: 0, rotateY: -Math.PI/2, rotateZ: 0
     },0xFF3030), createLine ({
-        width: 5, height: 0.25, length: 0.5,
-        x: -8.125, y: 23, z: -13.25,
+        width: 6.4, height: 0.25, length: 0.5,
+        x: -8.225, y: 21.3, z: -13.25,
         rotateX: 0, rotateY: 0, rotateZ: Math.PI/2
-    },0xFF3030), createText(SCENE, "2 cm", {
-        height: 0.25, size: 2,
-        x: -8.125, y: 21.5, z: 8.5,
+    },0xFF3030), createText(SCENE, "1.4 cm", {
+        height: 0.25, size: 1,
+        x: -8.225, y: 18.8, z: 11.5,
         rotateX: 0, rotateY: -Math.PI/2, rotateZ: 0
     },0xFF3030), createLine ({
-        width: 2, height: 0.25, length: 0.5,
-        x: -8.125, y: 21.5, z: 13.25,
+        width: 1.4, height: 0.25, length: 0.5,
+        x: -8.225, y: 18.8, z: 14.25,
         rotateX: 0, rotateY: 0, rotateZ: Math.PI/2
-    },0xFF3030));
+    },0xFF3030, false));
     
     // Side Storage
     OBJECT_GROUP.push(createWoodCube({
-        width: 16, height: 8, length: 1,
-        x: 0, y: 6, z: -24.5,
+        width: 14.8, height: 6, length: 0.6,
+        x: 0, y: 3.7, z: -26.5,
         rotateX: 0, rotateY: 0, rotateZ: 0
     }), createWoodCube({
-        width: 6, height: 8, length: 1,
-        x: 7.5, y: 6, z: -21,
+        width: 10, height: 6, length: 0.6,
+        x: 7.7, y: 3.7, z: -21.8,
         rotateX: 0, rotateY: Math.PI/2, rotateZ: 0
     }), createWoodCube({
-        width: 6, height: 8, length: 1,
-        x: -7.5, y: 6, z: -21,
+        width: 10, height: 6, length: 0.6,
+        x: -7.7, y: 3.7, z: -21.8,
         rotateX: 0, rotateY: Math.PI/2, rotateZ: 0
     }), createWoodCube({
-        width: 16, height: 8, length: 3,
-        x: 0, y: 1, z: -21,
+        width: 16, height: 10, length: 1.2,
+        x: 0, y: 0.1, z: -21.8,
         rotateX: Math.PI/2, rotateY: 0, rotateZ: 0
     }));
 
     // Side Storage sizes
-    SIZE_GROUP.push(createText(SCENE, "6 cm", {
-        height: 0.25, size: 2,
-        x: 2.125, y: 10.125, z: -21,
+    SIZE_GROUP.push(createText(SCENE, "14.8 cm", {
+        height: 0.25, size: 1.5,
+        x: 0, y: 6.825, z: -25.5,
         rotateX: -Math.PI/2, rotateY: 0, rotateZ: Math.PI
+    }), createLine ({
+        width: 14.8, height: 0.5, length: 0.5,
+        x: 0, y: 6.825, z: -23.5,
+        rotateX: Math.PI/2, rotateY: 0, rotateZ: 0
+    }, 0xFFFFFF, false),createText(SCENE, "0.6", {
+        height: 0.25, size: 1,
+        x: -7.7, y: 6.825, z: -25.5,
+        rotateX: -Math.PI/2, rotateY: 0, rotateZ: Math.PI
+    }, 0xFF3030), createLine ({
+        width: 0.6, height: 0.5, length: 0.5,
+        x: -7.7, y: 6.825, z: -23.5,
+        rotateX: Math.PI/2, rotateY: 0, rotateZ: 0
+    }, 0xFF3030, false),createText(SCENE, "0.6", {
+        height: 0.25, size: 1,
+        x: 7.7, y: 6.825, z: -25.5,
+        rotateX: -Math.PI/2, rotateY: 0, rotateZ: Math.PI
+    }, 0xFF3030), createLine ({
+        width: 0.6, height: 0.5, length: 0.5,
+        x: 7.7, y: 6.825, z: -23.5,
+        rotateX: Math.PI/2, rotateY: 0, rotateZ: 0
+    }, 0xFF3030, false), createText(SCENE, "7.2 cm", {
+        height: 0.25, size: 1.5,
+        x: -4.5, y: 3.1, z: -26.925,
+        rotateX: 0, rotateY: -Math.PI, rotateZ: 0
+    }), createLine ({
+        width: 7.2, height: 0.25, length: 0.5,
+        x: -0.75, y: 3.1, z: -26.925,
+        rotateX: 0, rotateY: Math.PI/2, rotateZ: Math.PI/2
+    }), createText(SCENE, "6 cm", {
+        height: 0.25, size: 1.25,
+        x: 4, y: 3.7, z: -26.925,
+        rotateX: 0, rotateY: -Math.PI, rotateZ: 0
     }), createLine ({
         width: 6, height: 0.25, length: 0.5,
-        x: 6.125, y: 10.125, z: -21,
-        rotateX: Math.PI/2, rotateY: Math.PI/2, rotateZ: Math.PI/2
-    }, 0xFFFFFF, false),createText(SCENE, "1 cm", {
-        height: 0.25, size: 1.5,
-        x: 2.625, y: 10.125, z: -24.25,
-        rotateX: -Math.PI/2, rotateY: 0, rotateZ: Math.PI
+        x: 0.75, y: 3.7, z: -26.925,
+        rotateX: 0, rotateY: Math.PI/2, rotateZ: Math.PI/2
+    }, 0xFFFFFF, false), createText(SCENE, "1.2 cm", {
+        height: 0.25, size: 1,
+        x: 4, y: 0.35, z: -26.925,
+        rotateX: 0, rotateY: -Math.PI, rotateZ: 0
     }, 0xFF3030), createLine ({
-        width: 1, height: 0.25, length: 0.5,
-        x: 6.125, y: 10.125, z: -24.5,
-        rotateX: Math.PI/2, rotateY: Math.PI/2, rotateZ: Math.PI/2
-    }, 0xFF3030, false), createText(SCENE, "10.5 cm", {
-        height: 0.25, size: 2,
-        x: -8.125, y: 4.75, z: -31.5,
-        rotateX: 0, rotateY: -Math.PI/2, rotateZ: 0
-    }), createLine ({
-        width: 10.5, height: 0.25, length: 0.5,
-        x: -8.125, y: 4.75, z: -26.25,
-        rotateX: 0, rotateY: 0, rotateZ: Math.PI/2
-    }), createText(SCENE, "9cm", {
-        height: 0.25, size: 2,
-        x: -8.125, y: 5.5, z: -21.5,
-        rotateX: 0, rotateY: -Math.PI/2, rotateZ: 0
-    }), createLine ({
-        width: 9, height: 0.25, length: 0.5,
-        x: -8.125, y: 5.5, z: -25,
-        rotateX: 0, rotateY: 0, rotateZ: Math.PI/2
-    }, 0xFFFFFF, false), createText(SCENE, "1.5 cm", {
-        height: 0.25, size: 1.5,
-        x: -8.125, y: 0.5, z: -21.5,
+        width: 1.2, height: 0.25, length: 0.5,
+        x: 0.75, y: 0.1, z: -26.925,
+        rotateX: 0, rotateY: Math.PI/2, rotateZ: Math.PI/2
+    }, 0xFF3030, false), createText(SCENE, "0.6", {
+        height: 0.25, size: 1,
+        x: -8.125, y: 2, z: -26.5,
         rotateX: 0, rotateY: -Math.PI/2, rotateZ: 0
     }, 0xFF3030), createLine ({
-        width: 1.5, height: 0.25, length: 0.5,
-        x: -8.125, y: 0.25, z: -25,
+        width: 0.6, height: 0.25, length: 0.5,
+        x: -8.125, y: 3, z: -26.5,
         rotateX: 0, rotateY: 0, rotateZ: Math.PI/2
-    }, 0xFF3030, false))
+    }, 0xFF3030, false), createText(SCENE, "9.4 cm", {
+        height: 0.25, size: 1,
+        x: -8.125, y: 2, z: -21.5,
+        rotateX: 0, rotateY: -Math.PI/2, rotateZ: 0
+    }), createLine ({
+        width: 9.4, height: 0.25, length: 0.5,
+        x: -8.125, y: 3, z: -21.5,
+        rotateX: Math.PI/2, rotateY: 0, rotateZ: Math.PI/2
+    }, 0xFFFFFF, false))
 
     // Doll
-    createModel(SCENE, "doll.glb", 6);
-    createModel(SCENE, "doll.glb", 24.5);
+    createModel(SCENE, "doll.glb", 5.4);
+    createModel(SCENE, "doll.glb", 22.2);
 
     // Shoes Holder
     OBJECT_GROUP.push(createWoodCube({
-        width: 16, height: 5, length: 1,
-        x: 0, y: 0, z: 20.5,
+        width: 16, height: 5, length: 0.6,
+        x: 0, y: -0.2, z: 19.3,
         rotateX: Math.PI/2, rotateY: 0, rotateZ: 0
     }), createWoodCube({
-        width: 16, height: 5, length: 1,
-        x: 0, y: 5, z: 20.5,
+        width: 16, height: 5, length: 0.6,
+        x: 0, y: 4.4, z: 19.3,
         rotateX: Math.PI/2, rotateY: 0, rotateZ: 0
     }), createWoodCube({
-        width: 16, height: 5, length: 1,
-        x: 0, y: 10, z: 20.5,
+        width: 16, height: 5, length: 0.6,
+        x: 0, y: 9, z: 19.3,
         rotateX: Math.PI/2, rotateY: 0, rotateZ: 0
     }))
 
     // Shoes Holder Sizes
     SIZE_GROUP.push(createText(SCENE, "5 cm", {
         height: 0.25, size: 2,
-        x: 2.125, y: 10.625, z: 20.5,
+        x: 3.125, y: 9.425, z: 19.3,
         rotateX: -Math.PI/2, rotateY: 0, rotateZ: 0
     }), createLine ({
         width: 5, height: 0.25, length: 0.5,
-        x: 7.125, y: 10.625, z: 20.5,
+        x: 7.125, y: 9.425, z: 19.3,
         rotateX: Math.PI/2, rotateY: Math.PI/2, rotateZ: Math.PI/2
     }), createText(SCENE, "4 cm", {
         height: 0.25, size: 2,
-        x: 4.5, y: 2.5, z: 23.125,
+        x: 4.5, y: 2.1, z: 21.925,
         rotateX: 0, rotateY: 0, rotateZ: 0
-    }), createLine ({
+    }, 0xFF3030), createLine ({
         width: 4, height: 0.25, length: 0.5,
-        x: 0, y: 2.5, z: 23.125,
+        x: 0, y: 2.1, z: 21.925,
         rotateX: 0, rotateY: Math.PI/2, rotateZ: Math.PI/2
-    }), createText(SCENE, "4 cm", {
+    }, 0xFF3030), createText(SCENE, "4 cm", {
         height: 0.25, size: 2,
-        x: 4.5, y: 7.5, z: 23.125,
+        x: 4.5, y: 6.7, z: 21.925,
         rotateX: 0, rotateY: 0, rotateZ: 0
-    }), createLine ({
+    }, 0xFF3030), createLine ({
         width: 4, height: 0.25, length: 0.5,
-        x: 0, y: 7.5, z: 23.125,
+        x: 0, y: 6.7, z: 21.925,
         rotateX: 0, rotateY: Math.PI/2, rotateZ: Math.PI/2
-    }), createText(SCENE, "1 cm", {
+    }, 0xFF3030), createText(SCENE, "0.6 cm", {
         height: 0.25, size: 1,
-        x: -2.25, y: 5, z: 23.125,
+        x: -3.25, y: -0.2, z: 21.925,
         rotateX: 0, rotateY: 0, rotateZ: 0
-    }, 0xFF3030), createLine ({
-        width: 1, height: 0.25, length: 0.5,
-        x: 0, y: 5, z: 23.125,
-        rotateX: 0, rotateY: Math.PI/2, rotateZ: Math.PI/2
-    }, 0xFF3030, false), createText(SCENE, "1 cm", {
-        height: 0.25, size: 1,
-        x: -2.25, y: 0, z: 23.125,
-        rotateX: 0, rotateY: 0, rotateZ: 0
-    }, 0xFF3030), createLine ({
-        width: 1, height: 0.25, length: 0.5,
-        x: 0, y: 0, z: 23.125,
-        rotateX: 0, rotateY: Math.PI/2, rotateZ: Math.PI/2
-    }, 0xFF3030, false), createText(SCENE, "1 cm", {
-        height: 0.25, size: 1,
-        x: -2.25, y: 10, z: 23.125,
-        rotateX: 0, rotateY: 0, rotateZ: 0
-    }, 0xFF3030), createLine ({
-        width: 1, height: 0.25, length: 0.5,
-        x: 0, y: 10, z: 23.125,
-        rotateX: 0, rotateY: Math.PI/2, rotateZ: Math.PI/2
-    }, 0xFF3030, false))
-
-    // Upper Display
-    OBJECT_GROUP.push(createWoodCube({
-        width: 16, height: 8, length: 1,
-        x: 0, y: 25, z: -21,
-        rotateX: Math.PI/2, rotateY: 0, rotateZ: 0
-    }))
-
-    // Upper Display Sizes
-    SIZE_GROUP.push(createText(SCENE, "7 cm", {
-        height: 0.25, size: 2,
-        x: 2.125, y: 25.625, z: -21.5,
-        rotateX: -Math.PI/2, rotateY: 0, rotateZ: Math.PI
     }), createLine ({
-        width: 7, height: 0.25, length: 0.5,
-        x: 7.125, y: 25.625, z: -21.5,
-        rotateX: Math.PI/2, rotateY: Math.PI/2, rotateZ: Math.PI/2
-    }), createText(SCENE, "3 cm", {
-        height: 0.25, size: 2,
-        x: 2.125, y: 25.625, z: -16.5,
-        rotateX: -Math.PI/2, rotateY: 0, rotateZ: Math.PI
-    }, 0xFF3030), createLine ({
-        width: 3, height: 0.25, length: 0.5,
-        x: 7.125, y: 25.625, z: -16.5,
-        rotateX: Math.PI/2, rotateY: Math.PI/2, rotateZ: Math.PI/2
-    }, 0xFF3030))
+        width: 0.6, height: 0.25, length: 0.5,
+        x: 0, y: -0.2, z: 21.925,
+        rotateX: 0, rotateY: Math.PI/2, rotateZ: Math.PI/2
+    }, 0xFFFFFF, false), createText(SCENE, "0.6 cm", {
+        height: 0.25, size: 1,
+        x: -3.25, y: 4.4, z: 21.925,
+        rotateX: 0, rotateY: 0, rotateZ: 0
+    }), createLine ({
+        width: 0.6, height: 0.25, length: 0.5,
+        x: 0, y: 4.4, z: 21.925,
+        rotateX: 0, rotateY: Math.PI/2, rotateZ: Math.PI/2
+    }, 0xFFFFFF, false), createText(SCENE, "0.6 cm", {
+        height: 0.25, size: 1,
+        x: -3.25, y: 9, z: 21.925,
+        rotateX: 0, rotateY: 0, rotateZ: 0
+    }), createLine ({
+        width: 0.6, height: 0.25, length: 0.5,
+        x: 0, y: 9, z: 21.925,
+        rotateX: 0, rotateY: Math.PI/2, rotateZ: Math.PI/2
+    }, 0xFFFFFF, false))
 
     createLight();
     OBJECT_GROUP.forEach(e => {
@@ -414,7 +403,6 @@ let init = () => {
             console.log(e);
         }
     });
-    toggleSizes();
 
     document.body.appendChild( RENDERER.domElement );
     var object = document.getElementById("btn_size");
