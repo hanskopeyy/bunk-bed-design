@@ -174,12 +174,12 @@ let init = () => {
         rotateX: 0, rotateY: Math.PI/2, rotateZ: Math.PI/2
     }), createText(SCENE, "25 cm", {
         height: 0.25, size: 2,
-        x: -13.9, y: 12, z: -15.9,
-        rotateX: 0, rotateY: 0, rotateZ: 0
+        x: -8.225, y: 18, z: -20.5,
+        rotateX: 0, rotateY: -Math.PI/2, rotateZ: 0
     }), createLine ({
         width: 25, height: 0.25, length: 0.5,
-        x: -9, y: 12, z: -15.9,
-        rotateX: 0, rotateY: Math.PI/2, rotateZ: Math.PI/2
+        x: -8.225, y: 12, z: -15.9,
+        rotateX: 0, rotateY: 0, rotateZ: Math.PI/2
     }), createText(SCENE, " 1.8 cm", {
         height: 0.25, size: 1,
         x: -8.225, y: 14, z: 15.9,
@@ -236,7 +236,15 @@ let init = () => {
         width: 1.4, height: 0.25, length: 0.5,
         x: -8.225, y: 18.8, z: 14.25,
         rotateX: 0, rotateY: 0, rotateZ: Math.PI/2
-    },0xFF3030, false));
+    },0xFF3030, false), createText(SCENE, "48.6 cm", {
+        height: 0.25, size: 2,
+        x: -15, y: -0.125, z: -2.5,
+        rotateX: -Math.PI/2, rotateY: 0, rotateZ: -Math.PI/2
+    }), createLine ({
+        width: 48.6, height: 0.25, length: 0.5,
+        x: -12, y: -0.125, z: -2.5,
+        rotateX: Math.PI/2, rotateY: Math.PI/2, rotateZ: Math.PI/2
+    }));
     
     // Side Storage
     OBJECT_GROUP.push(createWoodCube({
